@@ -34,33 +34,38 @@ def sanitize_filename(name):
         name = name.replace(char, '_')
     return name.strip().rstrip('.')
 
-def upload_to_github(filename, file_path):
-    """Uploads a file to GitHub using the GitHub API."""
-    with open(file_path, 'rb') as f:
-        file_content = f.read()
-    encoded_content = base64.b64encode(file_content).decode()
+# Define the GitHub upload function
+def github_upload_function(filename, filepath):
+    try:
+        with open(filepath, 'rb') as f:
+            file_content = f.read()
+        encoded_content = base64.b64encode(file_content).decode()
 
-    file_url = f"downloads/{filename}"
-    payload = {
-        "message": f"Add {filename}",
-        "content": encoded_content,
-        "branch": "main"
-    }
+        file_url = f"downloads/{filename}"
+        payload = {
+            "message": f"Add {filename}",
+            "content": encoded_content,
+            "branch": "main"
+        }
 
-    headers = {
-        "Authorization": f"Bearer {MY_GITHUB_TOKEN}",
-        "Accept": "application/vnd.github.v3+json"
-    }
+        headers = {
+            "Authorization": f"Bearer {MY_GITHUB_TOKEN}",
+            "Accept": "application/vnd.github.v3+json"
+        }
 
-    response = requests.put(f'{GITHUB_API_URL}{file_url}', headers=headers, data=json.dumps(payload))
+        response = requests.put(f'{GITHUB_API_URL}{file_url}', headers=headers, data=json.dumps(payload))
 
-    if response.status_code == 201:
-        file_info = response.json()
-        download_url = file_info['content']['download_url']
-        return download_url
-    else:
-        print("Error uploading file to GitHub:", response.json())
-        return None
+        if response.status_code == 201:
+            file_info = response.json()
+            download_url = file_info['content']['download_url']
+            return {'success': True, 'download_url': download_url}
+        else:
+            print("Error uploading file to GitHub:", response.json())
+            return {'success': False, 'error': response.json()}
+
+    except Exception as e:
+        print("Error in github_upload_function:", e)
+        return {'success': False, 'error': str(e)}
  
 @app.route('/')
 def index():
@@ -87,7 +92,7 @@ def search_spotify_song():
         if not token:
             return jsonify({'success': False, 'error': 'Unable to fetch Spotify token'}), 500
 
-        search_response = requests.get(f'https://api.spotify.com/v1/search?q={search_term}&type=track&limit=10', headers={
+        search_response = requests.get(f'https://api.spotify.com/v1/search?q={search_term}&type=track', headers={
             'Authorization': f'Bearer {token}'
         })
         search_data = search_response.json()
@@ -109,44 +114,8 @@ def search_spotify_song():
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500
 
-@app.route('/github-upload', methods=['POST'])
-def github_upload():
-    try:
-        # Get the file details from the request
-        file_data = request.json
-        filename = file_data.get('filename')
-        filepath = file_data.get('filepath')
 
-        if not filename or not filepath:
-            return jsonify({'success': False, 'error': 'Filename and file path are required'}), 400
-
-        # Define GitHub headers
-        github_headers = {
-            "Authorization": f"Bearer {MY_GITHUB_TOKEN}",
-            "Accept": "application/vnd.github.v3+json"
-        }
-
-        # Prepare the API URL for GitHub upload
-        file_url = f"downloads/{filename}"
-
-        # Upload the file to GitHub
-        with open(filepath, 'rb') as file:
-            upload_response = requests.put(f'{GITHUB_API_URL}{file_url}', headers=github_headers, data=file)
-
-        if upload_response.status_code == 201:  # Check if the upload was successful
-            file_info = upload_response.json()
-            download_url = file_info.get('download_url')
-            return jsonify({'success': True, 'download_url': download_url})
-
-        else:
-            return jsonify({'success': False, 'error': 'Error uploading file to GitHub'}), 500
-
-    except Exception as e:
-        print("Error in github_upload route:", e)
-        return jsonify({'success': False, 'error': str(e)}), 500
-
-
-@app.route('/song-info-to-audio', methods=['POST'])
+@app.route('/song-info-to-audio-spotify', methods=['POST'])
 def song_info_to_audio():
     try:
         data = request.json
@@ -187,7 +156,8 @@ def song_info_to_audio():
                 print(f"File already exists locally: {filename}")
                 
                 # Call the new route for GitHub upload
-                upload_response = requests.post('/github-upload', json={'filename': filename, 'filepath': filepath})
+                upload_url = request.host_url + 'github-upload'
+                upload_response = requests.post(upload_url, json={'filename': filename, 'filepath': filepath})
                 upload_data = upload_response.json()
 
                 if upload_data.get('success') and upload_data.get('download_url'):
@@ -216,18 +186,13 @@ def song_info_to_audio():
                 download_link = data.get('downloadLink')
 
                 if download_link:
-                    print(f"Downloading audio from: {download_link}")
                     audio_response = requests.get(download_link, stream=True)
                     with open(filepath, 'wb') as f:
                         f.write(audio_response.content)
 
-                    print(f"Download complete: {filepath}")
-                    upload_response = requests.post('/github-upload', json={'filename': filename, 'filepath': filepath})
-                    upload_data = upload_response.json()
-
-                    if upload_data.get('success') and upload_data.get('download_url'):
+                    upload_data = github_upload_function(filename, filepath)
+                    if upload_data['success']:
                         os.remove(filepath)  # Remove the local file after upload
-                        print(f"Local file {filename} removed after upload.") 
                         return jsonify({
                             'success': True,
                             'audio_url': upload_data['download_url'],
@@ -235,7 +200,7 @@ def song_info_to_audio():
                         })
                     else:
                         return jsonify({'success': False, 'error': 'Error uploading file to GitHub'}), 500
-                else:
+                else: 
                     return jsonify({'success': False, 'error': 'No download link found in response'}), 500
             else:
                 error_message = response_data.get('message', 'Unknown error from Spotify API')
@@ -248,6 +213,105 @@ def song_info_to_audio():
     except Exception as e:
         print("Error in song_info_to_audio route:", e)
         return jsonify({'success': False, 'error': str(e)}), 500
+        
+
+@app.route('/song-info-to-audio-yt', methods=['POST'])
+def song_info_to_audio_yt():
+    try:
+        data = request.json
+        song_name = data.get('songName')
+
+        if not song_name:
+            return jsonify({'success': False, 'error': 'Song name is required'}), 400
+
+        # Step 1: Check if the file already exists on GitHub
+        sanitized_song_name = sanitize_filename(song_name)
+        filename = f"{sanitized_song_name}.mp3"
+        file_url = f"downloads/{filename}"
+        github_headers = {
+            "Authorization": f"Bearer {MY_GITHUB_TOKEN}",
+            "Accept": "application/vnd.github.v3+json"
+        }
+
+        # Check if the file exists on GitHub
+        response = requests.get(f'{GITHUB_API_URL}{file_url}', headers=github_headers)
+
+        if response.status_code == 200:
+            file_info = response.json() 
+            download_url = file_info['download_url']
+            print(f"The song file already exists in GitHub. Providing the direct link: {download_url}")          
+            return jsonify({
+                'success': True,
+                'audio_url': download_url,
+                'song_name': song_name,
+            })
+        elif response.status_code == 404:
+            print(f"File does not exist on GitHub, proceeding to download: {filename}")
+
+            # Step 2: Search YouTube for the song
+            search_url = "https://www.googleapis.com/youtube/v3/search"
+            search_params = {
+                'part': 'snippet',
+                'q': song_name,
+                'key': YOUTUBE_API_KEY,
+                'type': 'video',
+                'maxResults': 1
+            }
+            search_response = requests.get(search_url, params=search_params)
+            search_data = search_response.json()
+
+            if 'items' not in search_data or not search_data['items']:
+                return jsonify({'success': False, 'error': 'No YouTube video found for the song'}), 404
+
+            video_id = search_data['items'][0]['id']['videoId']
+            print(f"Found YouTube video ID: {video_id}")
+
+            # Step 3: Convert YouTube video to MP3 using RapidAPI
+            conversion_url = "https://youtube-mp36.p.rapidapi.com/dl"
+            conversion_params = {"id": video_id}
+            conversion_headers = {
+                "x-rapidapi-key": RAPIDAPI_KEY,
+                "x-rapidapi-host": "youtube-mp36.p.rapidapi.com"
+            }
+            conversion_response = requests.get(conversion_url, headers=conversion_headers, params=conversion_params)
+            conversion_data = conversion_response.json()
+
+            if conversion_data.get("status") != "ok" or "link" not in conversion_data:
+                return jsonify({'success': False, 'error': 'Error converting YouTube video to audio'}), 500
+
+            download_link = conversion_data['link']
+            print(f"Downloading audio from: {download_link}")
+
+            # Step 4: Download and save the audio file
+            filepath = os.path.join(DOWNLOAD_FOLDER, filename)
+
+            audio_response = requests.get(download_link, stream=True)
+            with open(filepath, 'wb') as f:
+                f.write(audio_response.content)
+
+            print(f"Download complete: {filepath}")
+
+            # Step 5: Upload the file to GitHub using github_upload_function
+            upload_data = github_upload_function(filename, filepath)
+
+            if upload_data.get('success') and upload_data.get('download_url'):
+                os.remove(filepath)  # Remove the local file after upload
+                print(f"Local file {filename} removed after upload.")
+                return jsonify({
+                    'success': True,
+                    'audio_url': upload_data['download_url'],
+                    'song_name': song_name,
+                })
+            else:
+                return jsonify({'success': False, 'error': 'Error uploading file to GitHub'}), 500
+
+        else:
+            return jsonify({'success': False, 'error': 'Error checking file on GitHub'}), 500
+
+    except Exception as e:
+        print("Error in song_info_to_audio_yt route:", e)
+        return jsonify({'success': False, 'error': str(e)}), 500
+
 
 
 
@@ -256,5 +320,5 @@ def download_file(filename):
     return send_from_directory(DOWNLOAD_FOLDER, filename)
 
 if __name__ == '__main__':
-    app.run(debug=True, port=8080)
+    app.run(debug=True, port=2007)
  

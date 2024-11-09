@@ -494,6 +494,55 @@
 
         let searchTimeout = null;
 
+        const artists = [
+    // Pop Artists
+    "Ariana Grande", "Taylor Swift", "Billie Eilish", "Ed Sheeran", "Dua Lipa", 
+    "Olivia Rodrigo", "Shawn Mendes", "Doja Cat", "Lizzo", "Harry Styles", 
+    "Katy Perry", "The Weeknd", "Sam Smith", "Justin Bieber", "Rihanna", 
+
+    // Hip-Hop/Rap Artists
+    "Drake", "Kanye West", "Travis Scott", "Kendrick Lamar", "J. Cole", 
+    "Lil Nas X", "Megan Thee Stallion", "Cardi B", "Post Malone", "Future", 
+    "21 Savage", "Lil Baby", "Tyler, The Creator", "SZA", "Chance the Rapper", 
+
+    // Rock/Alternative Artists
+    "Imagine Dragons", "Coldplay", "The Killers", "Green Day", "Foo Fighters", 
+    "Red Hot Chili Peppers", "Linkin Park", "Paramore", "The Strokes", "Arctic Monkeys", 
+    "Muse", "Twenty One Pilots", "The Black Keys", "My Chemical Romance", "Kings of Leon",
+
+    // Latin Artists
+    "Bad Bunny", "J Balvin", "Maluma", "Shakira", "Karol G", 
+    "Daddy Yankee", "Ozuna", "Anuel AA", "Ricky Martin", "Luis Fonsi", 
+
+    // Indie Artists
+    "Tame Impala", "The 1975", "Vampire Weekend", "Florence + The Machine", 
+    "The Lumineers", "Foster the People", "Hozier", "Vance Joy", "Lord Huron", 
+    "Glass Animals", "BØRNS", "Lorde", "Of Monsters and Men", "The xx",
+
+    // EDM/Dance Artists
+    "Calvin Harris", "David Guetta", "Marshmello", "Avicii", "Zedd", 
+    "Martin Garrix", "The Chainsmokers", "Steve Aoki", "Deadmau5", "Kygo", 
+
+    // R&B Artists
+    "Frank Ocean", "H.E.R.", "John Legend", "Miguel", "Jhené Aiko", 
+    "Solange", "Alicia Keys", "Bruno Mars", "Daniel Caesar", "Trey Songz", 
+
+    // Country Artists
+    "Luke Combs", "Kenny Chesney", "Carrie Underwood", "Blake Shelton", 
+    "Keith Urban", "Miranda Lambert", "Tim McGraw", "George Strait", "Dolly Parton", 
+    "Chris Stapleton", "Garth Brooks", "Florida Georgia Line", "Thomas Rhett", 
+
+    // Other Global Artists
+    "BTS", "BLACKPINK", "EXO", "NCT", "TWICE", "Stray Kids", "Seventeen", 
+    "IU", "TXT", "BIGBANG", "G-Dragon", "PSY", "CNCO", "Luis Fonsi", "Zayn Malik",
+    "Adele", "Eminem", "Drake", "Jay-Z", "Nas", "Nicki Minaj"
+];
+
+
+    // Pick a random artist from the array
+        const randomArtist = artists[Math.floor(Math.random() * artists.length)];
+        performSearch(randomArtist);
+
         searchInput.addEventListener('input', () => {
             clearTimeout(searchTimeout);
             searchTimeout = setTimeout(() => {
@@ -518,6 +567,7 @@
                 const data = await response.json();
                 if (data.success) {
                     displaySearchResults(data.songs);
+                    console.log(data.songs)
                 } else {
                     console.error('Search failed:', data.error);
                 }
@@ -539,16 +589,16 @@
                 songCard.addEventListener('click', () => {
                     playlist = songs;
                     currentIndex = playlist.indexOf(song);
-                    playSong(song);
+                    playSong_using_youtube_audio(song);
                 });
-                searchResults.appendChild(songCard);
+                searchResults.appendChild(songCard); 
             });
         }
 
-        async function playSong(song) {
+        async function playSong_using_spotify_audio(song) {
             loaderOverlay.classList.add('active');
             try {
-                const response = await fetch('/song-info-to-audio', {
+                const response = await fetch('/song-info-to-audio-spotify', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -566,15 +616,48 @@
                     };
                     audioPlayer.src = currentSong.audioUrl;
                     audioPlayer.play();
+                    loaderOverlay.classList.remove('active');
                     updateNowPlaying();
                 } else {
                     console.error('Failed to get audio:', data.error);
+                    playSong_using_youtube_audio(song);
                 }
             } catch (error) {
                 console.error('Error getting audio:', error);
-            } finally {
+            } 
+        }
+
+        async function playSong_using_youtube_audio(song) {
+            loaderOverlay.classList.add('active');
+            try {
+                const response = await fetch('/song-info-to-audio-yt', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        songName: song.name,
+                        spotifyUrl: song.external_urls.spotify,
+                    }),
+                });
+                const data = await response.json();
+                if (data.success) {
+                    currentSong = {
+                        ...song,
+                        audioUrl: data.audio_url,
+                    };
+                    audioPlayer.src = currentSong.audioUrl;
+                    audioPlayer.play();
+                    loaderOverlay.classList.remove('active');
+                    updateNowPlaying();
+                } else {
+                    console.error('Failed to get audio:', data.error);
+                    loaderOverlay.classList.remove('active');
+                }
+            } catch (error) {
+                console.error('Error getting audio:', error);
                 loaderOverlay.classList.remove('active');
-            }
+            } 
         }
 
         function updateNowPlaying() {
@@ -605,7 +688,7 @@
             } else {
                 currentIndex = playlist.length - 1;
             }
-            playSong(playlist[currentIndex]);
+            playSong_using_youtube_audio(playlist[currentIndex]);
         }
 
         function playNext() {
@@ -614,7 +697,7 @@
             } else {
                 currentIndex = 0;
             }
-            playSong(playlist[currentIndex]);
+            playSong_using_youtube_audio(playlist[currentIndex]);
         }
 
         function toggleShuffle() {
@@ -699,7 +782,7 @@
                 playNext();
             } else {
                 currentIndex = 0;
-                playSong(playlist[currentIndex]);
+                playSong_using_youtube_audio(playlist[currentIndex]);
             }
         });
 
