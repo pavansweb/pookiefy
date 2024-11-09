@@ -10,7 +10,7 @@ from flask_cors import CORS  # Import Flask-CORS
 # Load environment variables from .env file
 load_dotenv()
 
-app = Flask(__name__)
+app = Flask(__name__)  
 
 # Enable CORS
 CORS(app, resources={r"/*": {"origins": "*"}})  # Allow all origins
@@ -19,7 +19,7 @@ CORS(app, resources={r"/*": {"origins": "*"}})  # Allow all origins
 YOUTUBE_API_KEY = os.getenv('YOUTUBE_API_KEY')
 SPOTIFY_CLIENT_ID = os.getenv('SPOTIFY_CLIENT_ID')
 SPOTIFY_CLIENT_SECRET = os.getenv('SPOTIFY_CLIENT_SECRET')
-GITHUB_TOKEN = os.getenv('MY_GITHUB_TOKEN')
+MY_GITHUB_TOKEN = os.getenv('MY_GITHUB_TOKEN_FOR_POOKIEFY')
 GITHUB_REPO = os.getenv('GITHUB_REPO', 'pavansweb/pookiefy-song-storage')
 GITHUB_API_URL = f"https://api.github.com/repos/{GITHUB_REPO}/contents/"
 RAPIDAPI_KEY = os.getenv('RAPIDAPI_KEY')
@@ -27,6 +27,12 @@ RAPIDAPI_KEY = os.getenv('RAPIDAPI_KEY')
 # Define the directory to save downloads
 DOWNLOAD_FOLDER = os.path.join(app.root_path, 'downloads')
 os.makedirs(DOWNLOAD_FOLDER, exist_ok=True)
+
+def sanitize_filename(name):
+    invalid_chars = ['<', '>', ':', '"', '/', '\\', '|', '?', '*']
+    for char in invalid_chars:
+        name = name.replace(char, '_')
+    return name.strip().rstrip('.')
 
 def upload_to_github(filename, file_path):
     """Uploads a file to GitHub using the GitHub API."""
@@ -42,7 +48,7 @@ def upload_to_github(filename, file_path):
     }
 
     headers = {
-        "Authorization": f"Bearer {GITHUB_TOKEN}",
+        "Authorization": f"Bearer {MY_GITHUB_TOKEN}",
         "Accept": "application/vnd.github.v3+json"
     }
 
@@ -55,7 +61,7 @@ def upload_to_github(filename, file_path):
     else:
         print("Error uploading file to GitHub:", response.json())
         return None
-
+ 
 @app.route('/')
 def index():
     print(SPOTIFY_CLIENT_ID)
@@ -103,16 +109,53 @@ def search_spotify_song():
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500
 
+@app.route('/github-upload', methods=['POST'])
+def github_upload():
+    try:
+        # Get the file details from the request
+        file_data = request.json
+        filename = file_data.get('filename')
+        filepath = file_data.get('filepath')
+
+        if not filename or not filepath:
+            return jsonify({'success': False, 'error': 'Filename and file path are required'}), 400
+
+        # Define GitHub headers
+        github_headers = {
+            "Authorization": f"Bearer {MY_GITHUB_TOKEN}",
+            "Accept": "application/vnd.github.v3+json"
+        }
+
+        # Prepare the API URL for GitHub upload
+        file_url = f"downloads/{filename}"
+
+        # Upload the file to GitHub
+        with open(filepath, 'rb') as file:
+            upload_response = requests.put(f'{GITHUB_API_URL}{file_url}', headers=github_headers, data=file)
+
+        if upload_response.status_code == 201:  # Check if the upload was successful
+            file_info = upload_response.json()
+            download_url = file_info.get('download_url')
+            return jsonify({'success': True, 'download_url': download_url})
+
+        else:
+            return jsonify({'success': False, 'error': 'Error uploading file to GitHub'}), 500
+
+    except Exception as e:
+        print("Error in github_upload route:", e)
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
 @app.route('/song-info-to-audio', methods=['POST'])
 def song_info_to_audio():
     try:
         data = request.json
         song_name = data.get('songName')
         spotify_song_url = data.get('spotifyUrl')
-        
+
         if not song_name or not spotify_song_url:
             return jsonify({'success': False, 'error': 'Both song name and Spotify URL are required'}), 400
-        
+
         print("Received song name:", song_name)
         print("Received Spotify song URL:", spotify_song_url)
 
@@ -122,16 +165,16 @@ def song_info_to_audio():
 
         file_url = f"downloads/{filename}"
         github_headers = {
-            "Authorization": f"Bearer {GITHUB_TOKEN}",
+            "Authorization": f"Bearer {MY_GITHUB_TOKEN}",
             "Accept": "application/vnd.github.v3+json"
         }
 
         response = requests.get(f'{GITHUB_API_URL}{file_url}', headers=github_headers)
 
         if response.status_code == 200:
-            file_info = response.json()
+            file_info = response.json() 
             download_url = file_info['download_url']
-            print("The song file already exists in github. Providing the direct link:", download_url)          
+            print("The song file already exists in GitHub. Providing the direct link:", download_url)          
             return jsonify({
                 'success': True,
                 'audio_url': download_url,
@@ -142,13 +185,17 @@ def song_info_to_audio():
 
             if os.path.exists(filepath):
                 print(f"File already exists locally: {filename}")
-                download_url = upload_to_github(filename, filepath)
-                if download_url:
-                    os.remove(filepath)
-                    print(f"Local file {filename} removed after upload.")                   
+                
+                # Call the new route for GitHub upload
+                upload_response = requests.post('/github-upload', json={'filename': filename, 'filepath': filepath})
+                upload_data = upload_response.json()
+
+                if upload_data.get('success') and upload_data.get('download_url'):
+                    os.remove(filepath)  # Remove local file after uploading
+                    print(f"Local file {filename} removed after upload.")
                     return jsonify({
                         'success': True,
-                        'audio_url': download_url,
+                        'audio_url': upload_data['download_url'],
                         'song_name': song_name,
                     })
                 else:
@@ -175,13 +222,15 @@ def song_info_to_audio():
                         f.write(audio_response.content)
 
                     print(f"Download complete: {filepath}")
-                    download_url = upload_to_github(filename, filepath)
-                    if download_url:
-                        os.remove(filepath)
-                        print(f"Local file {filename} removed after upload.")                        
+                    upload_response = requests.post('/github-upload', json={'filename': filename, 'filepath': filepath})
+                    upload_data = upload_response.json()
+
+                    if upload_data.get('success') and upload_data.get('download_url'):
+                        os.remove(filepath)  # Remove the local file after upload
+                        print(f"Local file {filename} removed after upload.") 
                         return jsonify({
                             'success': True,
-                            'audio_url': download_url,
+                            'audio_url': upload_data['download_url'],
                             'song_name': song_name,
                         })
                     else:
@@ -200,16 +249,12 @@ def song_info_to_audio():
         print("Error in song_info_to_audio route:", e)
         return jsonify({'success': False, 'error': str(e)}), 500
 
-def sanitize_filename(name):
-    invalid_chars = ['<', '>', ':', '"', '/', '\\', '|', '?', '*']
-    for char in invalid_chars:
-        name = name.replace(char, '_')
-    return name.strip().rstrip('.')
+
 
 @app.route('/downloads/<path:filename>')
 def download_file(filename):
     return send_from_directory(DOWNLOAD_FOLDER, filename)
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, port=8080)
  
