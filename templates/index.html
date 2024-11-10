@@ -466,7 +466,7 @@
             <div class="profile-dropdown">
                 <a href="#" id="profile-link">Profile</a>
                 <a href="#" id="settings-link">Settings</a>
-                <a href="#" id="logout-link">Logout</a>
+                <a href="/logout" id="logout-link">Logout</a>
             </div>
         </div>
     </header>
@@ -635,21 +635,6 @@
         document.addEventListener('click', (e) => {
             if (!userProfile.contains(e.target)) {
                 profileDropdown.classList.remove('active');
-            }
-        });
-
-        // Logout functionality
-        logoutLink.addEventListener('click', async (e) => {
-            e.preventDefault();
-            try {
-                const response = await fetch('/logout', { method: 'POST' });
-                if (response.ok) {
-                    updateLoginState(false);
-                } else {
-                    console.error('Logout failed');
-                }
-            } catch (error) {
-                console.error('Error during logout:', error);
             }
         });
 
