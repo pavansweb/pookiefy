@@ -4,390 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pookiefy - Your Personal Music Haven</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #121212;
-            color: #fff;
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-        }
-        header {
-            background-color: #000;
-            padding: 15px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-        .logo {
-            display: flex;
-            align-items: center;
-            font-size: 24px;
-            font-weight: bold;
-            color: #1DB954;
-        }
-        .logo svg {
-            margin-right: 10px;
-        }
-        .container {
-            display: flex;
-            flex: 1;
-            overflow: hidden;
-        }
-        nav {
-            width: 240px;
-            background-color: #000;
-            padding: 24px;
-            transition: transform 0.3s ease-in-out;
-        }
-        .nav-toggle {
-            display: none;
-            background: none;
-            border: none;
-            color: #fff;
-            font-size: 24px;
-            cursor: pointer;
-        }
-        .nav-item {
-            display: flex;
-            align-items: center;
-            color: #b3b3b3;
-            text-decoration: none;
-            margin-bottom: 16px;
-            font-size: 14px;
-            transition: color 0.3s;
-        }
-        .nav-item:hover {
-            color: #fff;
-        }
-        .nav-item svg {
-            margin-right: 16px;
-        }
-        main {
-            flex: 1;
-            overflow-y: auto;
-            background: linear-gradient(to bottom, #1e1e1e, #121212);
-            padding: 24px;
-        }
-        .search-container {
-            display: flex;
-            align-items: center;
-            margin-bottom: 24px;
-            position: relative;
-        }
-        #search-input {
-            flex: 1;
-            background-color: #fff;
-            border: none;
-            padding: 12px 40px 12px 12px;
-            border-radius: 24px;
-            font-size: 14px;
-        }
-        .search-icon {
-            position: absolute;
-            right: 12px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #121212;
-        }
-        .search-results {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-            gap: 24px;
-        }
-        .song-card {
-            background-color: #181818;
-            border-radius: 8px;
-            padding: 16px;
-            cursor: pointer;
-            transition: background-color 0.3s, transform 0.3s;
-        }
-        .song-card:hover {
-            background-color: #282828;
-            transform: translateY(-5px);
-        }
-        .song-card img {
-            width: 100%;
-            aspect-ratio: 1;
-            object-fit: cover;
-            border-radius: 4px;
-            margin-bottom: 16px;
-            box-shadow: 0 4px 60px rgba(0, 0, 0, 0.5);
-        }
-        .song-card h3 {
-            font-size: 14px;
-            margin-bottom: 8px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        .song-card p {
-            font-size: 12px;
-            color: #b3b3b3;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        footer {
-            background-color: #181818;
-            border-top: 1px solid #282828;
-            padding: 16px 24px;
-            display: flex;
-            align-items: center;
-        }
-        .now-playing {
-            display: flex;
-            align-items: center;
-            flex: 1;
-        }
-        .now-playing img {
-            width: 56px;
-            height: 56px;
-            border-radius: 4px;
-            margin-right: 16px;
-            box-shadow: 0 4px 60px rgba(0, 0, 0, 0.5);
-        }
-        .song-info h4 {
-            font-size: 14px;
-            margin-bottom: 4px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            max-width: 300px;
-        }
-        .song-info p {
-            font-size: 12px;
-            color: #b3b3b3;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            max-width: 300px;
-        }
-        .controls {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            flex: 1;
-        }
-        .control-buttons {
-            display: flex;
-            align-items: center;
-            margin-bottom: 8px;
-        }
-        .control-buttons button {
-            background: none;
-            border: none;
-            color: #b3b3b3;
-            cursor: pointer;
-            padding: 8px;
-            transition: color 0.3s;
-        }
-        .control-buttons button:hover {
-            color: #fff;
-        }
-        .play-button {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            background-color: #fff;
-            color: #000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 16px;
-            transition: transform 0.3s, background-color 0.3s;
-        }
-        .play-button:hover {
-            transform: scale(1.1);
-            background-color: #1DB954;
-        }
-        .progress-bar {
-            width: 100%;
-            max-width: 400px;
-            display: flex;
-            align-items: center;
-            font-size: 12px;
-            color: #b3b3b3;
-        }
-        .progress-bar input {
-            flex: 1;
-            margin: 0 8px;
-            background: transparent;
-        }
-        .progress-bar input::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            height: 16px;
-            width: 16px;
-            border-radius: 50%;
-            background: #fff;
-            cursor: pointer;
-            margin-top: -6px;
-        }
-        .progress-bar input::-webkit-slider-runnable-track {
-            width: 100%;
-            height: 4px;
-            background: #535353;
-            border-radius: 2px;
-        }
-        .volume-control {
-            display: flex;
-            align-items: center;
-        }
-        .volume-control input {
-            width: 100px;
-            background: transparent;
-        }
-        .volume-control input::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            height: 16px;
-            width: 16px;
-            border-radius: 50%;
-            background: #fff;
-            cursor: pointer;
-            margin-top: -6px;
-        }
-        .volume-control input::-webkit-slider-runnable-track {
-            width: 100%;
-            height: 4px;
-            background: #535353;
-            border-radius: 2px;
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        .loader-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.7);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.3s, visibility 0.3s;
-        }
-        .loader-overlay.active {
-            opacity: 1;
-            visibility: visible;
-        }
-        .loader {
-            width: 50px;
-            height: 50px;
-            border: 3px solid #1DB954;
-            border-top: 3px solid transparent;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-        .loader-text {
-            position: absolute;
-            top: 60%;
-            left: 50%;
-            transform: translateX(-50%);
-            color: #fff;
-            font-size: 18px;
-            text-align: center;
-        }
-
-        @media (max-width: 768px) {
-            .container {
-                flex-direction: column;
-            }
-            nav {
-                width: 100%;
-                position: fixed;
-                bottom: 0;
-                left: 0;
-                padding: 10px;
-                transform: translateY(100%);
-                z-index: 1000;
-            }
-            nav.active {
-                transform: translateY(0);
-            }
-            .nav-toggle {
-                display: block;
-                position: fixed;
-                top: 10px;
-                right: 20px;
-                z-index: 1001;
-                background-color: #1DB954;
-                color: #fff;
-                width: 40px;
-                height: 40px;
-                border-radius: 50%;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-            }
-            main {
-                padding: 16px;
-            }
-            .search-results {
-                grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-                gap: 16px;
-            }
-            footer {
-                flex-direction: column;
-                padding: 16px;
-            }
-            .now-playing {
-                margin-bottom: 16px;
-            }
-            .controls {
-                width: 100%;
-            }
-            .volume-control {
-                margin-top: 16px;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="/static/style.css">
 </head>
+
 <body>
     <header>
         <div class="logo">
-            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M20.4 12.9l-4.7-4.7c-.3-.3-.8-.3-1.1 0L9.3 13.5c-.3.3-.3.8 0 1.1l4.7 4.7c.3.3.8.3 1.1 0l5.3-5.3c.3-.3.3-.8 0-1.1z"/>
-                <path d="M3.6 11.1l4.7 4.7c.3.3.8.3 1.1 0l5.3-5.3c.3-.3.3-.8 0-1.1L9.3 4.7c-.3-.3-.8-.3-1.1 0L3.6 10c-.3.3-.3.8 0 1.1z"/>
-            </svg>
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> <path d="M20.4 12.9l-4.7-4.7c-.3-.3-.8-.3-1.1 0L9.3 13.5c-.3.3-.3.8 0 1.1l4.7 4.7c.3.3.8.3 1.1 0l5.3-5.3c.3-.3.3-.8 0-1.1z"/><path d="M3.6 11.1l4.7 4.7c.3.3.8.3 1.1 0l5.3-5.3c.3-.3.3-.8 0-1.1L9.3 4.7c-.3-.3-.8-.3-1.1 0L3.6 10c-.3.3-.3.8 0 1.1z"/></svg>
             Pookiefy
         </div>
     </header>
     <div class="container">
-        <nav id="nav">
-            <a href="#" class="nav-item">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-                    <polyline points="9 22 9 12 15 12 15 22"></polyline>
-                </svg>
-                Home
-            </a>
-            <a href="#" class="nav-item">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="11" cy="11" r="8"></circle>
-                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                </svg>
-                Search
-            </a>
-            <a href="#" class="nav-item">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
-                    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
-                </svg>
-                Your Library
-            </a>
-        </nav>
-        <button id="nav-toggle" class="nav-toggle">☰</button>
+        
         <main>
             <div class="search-container">
                 <input type="search" id="search-input" placeholder="What do you want to listen to?">
@@ -483,14 +111,13 @@
         const currentSongName = document.getElementById('current-song-name');
         const currentSongArtist = document.getElementById('current-song-artist');
         const loaderOverlay = document.getElementById('loader-overlay');
-        const navToggle = document.getElementById('nav-toggle');
-        const nav = document.getElementById('nav');
 
         let currentSong = null;
         let playlist = [];
         let currentIndex = 0;
         let isShuffled = false;
         let repeatMode = 'none'; // 'none', 'one', 'all'
+        let get_audio_error = 0 ;
 
         let searchTimeout = null;
 
@@ -596,6 +223,7 @@
         }
 
         async function playSong_using_spotify_audio(song) {
+            if (get_audio_error<2){
             loaderOverlay.classList.add('active');
             try {
                 const response = await fetch('/song-info-to-audio-spotify', {
@@ -619,15 +247,29 @@
                     loaderOverlay.classList.remove('active');
                     updateNowPlaying();
                 } else {
+                    get_audio_error += 1 ;
                     console.error('Failed to get audio:', data.error);
                     playSong_using_youtube_audio(song);
                 }
             } catch (error) {
+                get_audio_error += 1 ;
                 console.error('Error getting audio:', error);
+                playSong_using_youtube_audio(song);
             } 
+        }
+        else {
+    loaderOverlay.innerHTML = "<h1>Error</h1>";
+    
+    // Wait for 5 seconds
+    setTimeout(() => {
+        loaderOverlay.classList.remove('active');
+    }, 2000); // 5000 milliseconds = 5 seconds
+}
+
         }
 
         async function playSong_using_youtube_audio(song) {
+            if (get_audio_error<2){
             loaderOverlay.classList.add('active');
             try {
                 const response = await fetch('/song-info-to-audio-yt', {
@@ -638,6 +280,7 @@
                     body: JSON.stringify({
                         songName: song.name,
                         spotifyUrl: song.external_urls.spotify,
+                        authorName: song.artists.map(artist => artist.name).join(', ')
                     }),
                 });
                 const data = await response.json();
@@ -651,13 +294,25 @@
                     loaderOverlay.classList.remove('active');
                     updateNowPlaying();
                 } else {
+                    get_audio_error += 1 ;
                     console.error('Failed to get audio:', data.error);
-                    loaderOverlay.classList.remove('active');
+                    playSong_using_spotify_audio(song)
                 }
             } catch (error) {
+                get_audio_error += 1 ;
                 console.error('Error getting audio:', error);
-                loaderOverlay.classList.remove('active');
+                playSong_using_spotify_audio(song)
             } 
+        }
+        else {
+    loaderOverlay.innerHTML = "<h1>Error</h1>";
+    
+    // Wait for 5 seconds
+    setTimeout(() => {
+        loaderOverlay.classList.remove('active');
+    }, 5000); // 5000 milliseconds = 5 seconds
+}
+
         }
 
         function updateNowPlaying() {
@@ -824,10 +479,6 @@
             }
         });
 
-        // Mobile navigation toggle
-        navToggle.addEventListener('click', () => {
-            nav.classList.toggle('active');
-        });
     </script>
 </body>
 </html>

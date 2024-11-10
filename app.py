@@ -22,17 +22,22 @@ SPOTIFY_CLIENT_SECRET = os.getenv('SPOTIFY_CLIENT_SECRET')
 MY_GITHUB_TOKEN = os.getenv('MY_GITHUB_TOKEN_FOR_POOKIEFY')
 GITHUB_REPO = os.getenv('GITHUB_REPO', 'pavansweb/pookiefy-song-storage')
 GITHUB_API_URL = f"https://api.github.com/repos/{GITHUB_REPO}/contents/"
-RAPIDAPI_KEY = os.getenv('RAPIDAPI_KEY')
+RAPIDAPI_KEY = os.getenv('RAPIDAPI_KEY1')
+RAPIDAPI_KEY2 = os.getenv('RAPIDAPI_KEY2')
+RAPIDAPI_KEY3 = os.getenv('RAPIDAPI_KEY3')
+RAPIDAPI_KEY4 = os.getenv('RAPIDAPI_KEY4')
 
 # Define the directory to save downloads
 DOWNLOAD_FOLDER = os.path.join(app.root_path, 'downloads')
 os.makedirs(DOWNLOAD_FOLDER, exist_ok=True)
 
-def sanitize_filename(name):
+def sanitize_filename(song_name, author_name):
+    combined_name = f"{song_name} - {author_name}" if author_name else song_name
     invalid_chars = ['<', '>', ':', '"', '/', '\\', '|', '?', '*']
     for char in invalid_chars:
-        name = name.replace(char, '_')
-    return name.strip().rstrip('.')
+        combined_name = combined_name.replace(char, '_')
+    return combined_name.strip().rstrip('.')
+
 
 # Define the GitHub upload function
 def github_upload_function(filename, filepath):
@@ -120,6 +125,7 @@ def song_info_to_audio():
     try:
         data = request.json
         song_name = data.get('songName')
+        author_name = data.get('authorName')
         spotify_song_url = data.get('spotifyUrl')
 
         if not song_name or not spotify_song_url:
@@ -128,7 +134,7 @@ def song_info_to_audio():
         print("Received song name:", song_name)
         print("Received Spotify song URL:", spotify_song_url)
 
-        sanitized_song_name = sanitize_filename(song_name)
+        sanitized_song_name = sanitize_filename(song_name,author_name)
         filename = f"{sanitized_song_name}.mp3"
         filepath = os.path.join(DOWNLOAD_FOLDER, filename)
 
@@ -220,12 +226,14 @@ def song_info_to_audio_yt():
     try:
         data = request.json
         song_name = data.get('songName')
+        author_name = data.get('authorName')  # Get the author's name from the request data
+        print(song_name,"by", author_name) 
 
         if not song_name:
             return jsonify({'success': False, 'error': 'Song name is required'}), 400
 
         # Step 1: Check if the file already exists on GitHub
-        sanitized_song_name = sanitize_filename(song_name)
+        sanitized_song_name = sanitize_filename(song_name,author_name)
         filename = f"{sanitized_song_name}.mp3"
         file_url = f"downloads/{filename}"
         github_headers = {
@@ -237,9 +245,9 @@ def song_info_to_audio_yt():
         response = requests.get(f'{GITHUB_API_URL}{file_url}', headers=github_headers)
 
         if response.status_code == 200:
-            file_info = response.json() 
+            file_info = response.json()
             download_url = file_info['download_url']
-            print(f"The song file already exists in GitHub. Providing the direct link: {download_url}")          
+            print(f"The song file already exists in GitHub. Providing the direct link: {download_url}")
             return jsonify({
                 'success': True,
                 'audio_url': download_url,
@@ -248,15 +256,16 @@ def song_info_to_audio_yt():
         elif response.status_code == 404:
             print(f"File does not exist on GitHub, proceeding to download: {filename}")
 
-            # Step 2: Search YouTube for the song
+            # Step 2: Search YouTube for the song using both song name and author
             search_url = "https://www.googleapis.com/youtube/v3/search"
+            search_query = f"{song_name} {author_name}" if author_name else song_name  # Include author if available
             search_params = {
                 'part': 'snippet',
-                'q': song_name,
+                'q': search_query,
                 'key': YOUTUBE_API_KEY,
-                'type': 'video',
+                'type': 'video', 
                 'maxResults': 1
-            }
+            } 
             search_response = requests.get(search_url, params=search_params)
             search_data = search_response.json()
 
@@ -311,6 +320,7 @@ def song_info_to_audio_yt():
     except Exception as e:
         print("Error in song_info_to_audio_yt route:", e)
         return jsonify({'success': False, 'error': str(e)}), 500
+
 
 
 
