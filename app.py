@@ -22,7 +22,7 @@ app.secret_key = os.urandom(24)
 CORS(app, resources={r"/*": {"origins": "*"}})  # Allow all origins
 
 # Load credentials and configuration from environment variables
-YOUTUBE_API_KEY = os.getenv('YOUTUBE_API_KEY')
+YOUTUBE_API_KEY = 'AIzaSyAZMHc8-c0ywvjiRs3CCxgLCnUBBRTTuXg'
 SPOTIFY_CLIENT_ID = '9241546ed80f472785347051926375e2'
 SPOTIFY_CLIENT_SECRET = 'ca7e1e03d6084328ad96faf52930b171'
 SPOTIFY_REDIRECT_URI = "https://literate-space-succotash-q77g59qx6jp93p5p-2007.app.github.dev/callback"
@@ -30,7 +30,8 @@ SPOTIFY_REDIRECT_URI = "https://literate-space-succotash-q77g59qx6jp93p5p-2007.a
 MY_GITHUB_TOKEN = os.getenv('MY_GITHUB_TOKEN_FOR_POOKIEFY')
 GITHUB_REPO = os.getenv('GITHUB_REPO', 'pavansweb/pookiefy-song-storage')
 GITHUB_API_URL = f"https://api.github.com/repos/{GITHUB_REPO}/contents/"
-RAPIDAPI_KEYS = [os.getenv('RAPIDAPI_KEY1'), os.getenv('RAPIDAPI_KEY2'), os.getenv('RAPIDAPI_KEY3'), os.getenv('RAPIDAPI_KEY4')]
+RAPIDAPI_KEYS = ['827a267b18mshccf0ef3588021b6p1eed8djsn6d526d9496ee', '403a0838eamshd14c1848197da01p118343jsn5f0026273ed4', 'a03c8cb70fmsh58312728b82e59ep1c47dejsnb343308fa972', 'f136c0aa68mshb36ffbc4dc13eafp117fecjsn56310af5bb86'
+]
 RAPIDAPI_KEY = random.choice(RAPIDAPI_KEYS)
 
 spotify_token_cache = TTLCache(maxsize=1, ttl=3600)
