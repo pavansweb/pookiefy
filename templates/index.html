@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pookiefy - Your Personal Music Haven</title>
+    <link rel="icon" href="https://iheartcraftythings.com/wp-content/uploads/2021/05/Drawing-Ribbon-in-10-Easy-Steps-728x1019.jpg">
     <link rel="stylesheet" href="/static/style.css">
 </head>
 
@@ -121,49 +122,7 @@
 
         let searchTimeout = null;
 
-        const artists = [
-    // Pop Artists
-    "Ariana Grande", "Taylor Swift", "Billie Eilish", "Ed Sheeran", "Dua Lipa", 
-    "Olivia Rodrigo", "Shawn Mendes", "Doja Cat", "Lizzo", "Harry Styles", 
-    "Katy Perry", "The Weeknd", "Sam Smith", "Justin Bieber", "Rihanna", 
-
-    // Hip-Hop/Rap Artists
-    "Drake", "Kanye West", "Travis Scott", "Kendrick Lamar", "J. Cole", 
-    "Lil Nas X", "Megan Thee Stallion", "Cardi B", "Post Malone", "Future", 
-    "21 Savage", "Lil Baby", "Tyler, The Creator", "SZA", "Chance the Rapper", 
-
-    // Rock/Alternative Artists
-    "Imagine Dragons", "Coldplay", "The Killers", "Green Day", "Foo Fighters", 
-    "Red Hot Chili Peppers", "Linkin Park", "Paramore", "The Strokes", "Arctic Monkeys", 
-    "Muse", "Twenty One Pilots", "The Black Keys", "My Chemical Romance", "Kings of Leon",
-
-    // Latin Artists
-    "Bad Bunny", "J Balvin", "Maluma", "Shakira", "Karol G", 
-    "Daddy Yankee", "Ozuna", "Anuel AA", "Ricky Martin", "Luis Fonsi", 
-
-    // Indie Artists
-    "Tame Impala", "The 1975", "Vampire Weekend", "Florence + The Machine", 
-    "The Lumineers", "Foster the People", "Hozier", "Vance Joy", "Lord Huron", 
-    "Glass Animals", "BØRNS", "Lorde", "Of Monsters and Men", "The xx",
-
-    // EDM/Dance Artists
-    "Calvin Harris", "David Guetta", "Marshmello", "Avicii", "Zedd", 
-    "Martin Garrix", "The Chainsmokers", "Steve Aoki", "Deadmau5", "Kygo", 
-
-    // R&B Artists
-    "Frank Ocean", "H.E.R.", "John Legend", "Miguel", "Jhené Aiko", 
-    "Solange", "Alicia Keys", "Bruno Mars", "Daniel Caesar", "Trey Songz", 
-
-    // Country Artists
-    "Luke Combs", "Kenny Chesney", "Carrie Underwood", "Blake Shelton", 
-    "Keith Urban", "Miranda Lambert", "Tim McGraw", "George Strait", "Dolly Parton", 
-    "Chris Stapleton", "Garth Brooks", "Florida Georgia Line", "Thomas Rhett", 
-
-    // Other Global Artists
-    "BTS", "BLACKPINK", "EXO", "NCT", "TWICE", "Stray Kids", "Seventeen", 
-    "IU", "TXT", "BIGBANG", "G-Dragon", "PSY", "CNCO", "Luis Fonsi", "Zayn Malik",
-    "Adele", "Eminem", "Drake", "Jay-Z", "Nas", "Nicki Minaj"
-];
+        const artists = ["The weekend","Taylor Swift","The Neighborhood"];
 
 
     // Pick a random artist from the array
@@ -234,10 +193,12 @@
                     body: JSON.stringify({
                         songName: song.name,
                         spotifyUrl: song.external_urls.spotify,
+                        authorName: song.artists.map(artist => artist.name).join(', ')
                     }),
                 });
                 const data = await response.json();
                 if (data.success) {
+                    get_audio_error = 0;
                     currentSong = {
                         ...song,
                         audioUrl: data.audio_url,
@@ -285,6 +246,7 @@
                 });
                 const data = await response.json();
                 if (data.success) {
+                    get_audio_error = 0;
                     currentSong = {
                         ...song,
                         audioUrl: data.audio_url,
