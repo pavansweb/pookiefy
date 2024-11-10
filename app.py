@@ -1,5 +1,7 @@
-from flask import Flask, request, jsonify, send_from_directory, render_template
+from flask import Flask, request, jsonify, send_from_directory, render_template, redirect, session, url_for
 import requests
+from spotipy import Spotify
+from spotipy.oauth2 import SpotifyOAuth
 import os
 import base64
 import json
@@ -14,14 +16,17 @@ from flask_cors import CORS  # Import Flask-CORS
 load_dotenv()
 
 app = Flask(__name__)  
+app.secret_key = os.urandom(24)
 
 # Enable CORS
 CORS(app, resources={r"/*": {"origins": "*"}})  # Allow all origins
 
 # Load credentials and configuration from environment variables
 YOUTUBE_API_KEY = os.getenv('YOUTUBE_API_KEY')
-SPOTIFY_CLIENT_ID = os.getenv('SPOTIFY_CLIENT_ID')
-SPOTIFY_CLIENT_SECRET = os.getenv('SPOTIFY_CLIENT_SECRET')
+SPOTIFY_CLIENT_ID = '9241546ed80f472785347051926375e2'
+SPOTIFY_CLIENT_SECRET = 'ca7e1e03d6084328ad96faf52930b171'
+SPOTIFY_REDIRECT_URI = "https://literate-space-succotash-q77g59qx6jp93p5p-2007.app.github.dev/callback"
+
 MY_GITHUB_TOKEN = os.getenv('MY_GITHUB_TOKEN_FOR_POOKIEFY')
 GITHUB_REPO = os.getenv('GITHUB_REPO', 'pavansweb/pookiefy-song-storage')
 GITHUB_API_URL = f"https://api.github.com/repos/{GITHUB_REPO}/contents/"
@@ -29,6 +34,19 @@ RAPIDAPI_KEYS = [os.getenv('RAPIDAPI_KEY1'), os.getenv('RAPIDAPI_KEY2'), os.gete
 RAPIDAPI_KEY = random.choice(RAPIDAPI_KEYS)
 
 spotify_token_cache = TTLCache(maxsize=1, ttl=3600)
+ 
+# Spotify OAuth object
+sp_oauth = SpotifyOAuth(
+    client_id=SPOTIFY_CLIENT_ID,
+    client_secret=SPOTIFY_CLIENT_SECRET,
+    redirect_uri=SPOTIFY_REDIRECT_URI,
+    scope="user-library-read user-top-read playlist-read-private",
+    cache_path=".cache",
+    show_dialog=True  # This will force the login prompt
+)
+
+# Spotify instance
+sp = Spotify(auth_manager=sp_oauth)
 
 # Define the directory to save downloads
 DOWNLOAD_FOLDER = os.path.join(app.root_path, 'downloads')
@@ -73,8 +91,75 @@ def github_upload_function(filename, filepath):
  
 @app.route('/')
 def index():
-    print(SPOTIFY_CLIENT_ID)
-    return render_template('index.html')
+    # Retrieve user info from the session if available
+    user_info = session.get('user_info', None)
+    
+    # Check if the user is logged in
+    if user_info:
+        # Extract profile details
+        user_name = user_info['display_name']
+        user_image = user_info['images'][0]['url'] if user_info['images'] else None
+        user_email = user_info.get('email')
+        
+        # Pass the user info to the template
+        return render_template('index.html', user_info=user_info, user_name=user_name, user_image=user_image, user_email=user_email)
+    else:
+       return render_template('index.html')
+
+@app.route('/login')
+def login():
+    # Generate the authorization URL without additional parameters
+    auth_url = sp_oauth.get_authorize_url()  # 'show_dialog' is handled in the initialization
+    return redirect(auth_url)
+
+
+# Callback route for Spotify to redirect after successful login
+@app.route('/callback')
+def callback():
+    # Get the authorization code from the response
+    token_info = sp_oauth.get_access_token(request.args['code'])
+    session['token_info'] = token_info  # Store the token info in the session
+
+    # Fetch the user's Spotify details to confirm login
+    sp = Spotify(auth=token_info['access_token'])
+    user_info = sp.current_user()
+
+    # Store the user info in session
+    session['user_info'] = user_info
+
+    # Redirect to the homepage
+    return redirect(url_for('index'))
+
+# Protect routes that require login
+@app.route('/user')
+def user_info():
+    token_info = session.get('token_info')
+    
+    # Check if the user is logged in by verifying token_info
+    if token_info:
+        try:
+            sp = Spotify(auth=token_info['access_token'])
+            user_data = sp.current_user()
+            return jsonify({'success': True, 'user_data': user_data})
+        except Exception as e:
+            return jsonify({'success': False, 'error': str(e)})
+    else:
+        # User is not logged in
+        return jsonify({'success': False, 'error': 'User is not logged in'}), 401
+
+# Define a /logout route to clear session and log out the user
+@app.route('/logout')
+def logout():
+    session.clear()
+
+    # Path to the Spotify cache file (this path is where SpotifyOAuth stores the cache by default)
+    cache_path = f".cache-{SPOTIFY_CLIENT_ID}"
+    if os.path.exists(cache_path):
+        os.remove(cache_path)  # Delete the cached token file
+
+    return redirect(url_for('index'))
+
+
 
 @app.route('/search-spotify-song', methods=['POST'])
 def search_spotify_song():

@@ -5,18 +5,472 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pookiefy - Your Personal Music Haven</title>
     <link rel="icon" href="https://i.postimg.cc/C5GvB590/Capture.jpg">
-    <link rel="stylesheet" href="/static/style.css">
-</head>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #121212;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        header {
+            background-color: #000;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            font-size: 24px;
+            font-weight: bold;
+            color: #1DB954;
+            text-decoration: none;
+        }
+
+        .logo svg {
+            margin-right: 10px;
+        }
+
+        nav {
+            display: flex;
+            align-items: center;
+        }
+
+        nav a {
+            color: #fff;
+            text-decoration: none;
+            margin-left: 20px;
+            font-size: 14px;
+            transition: color 0.3s;
+        }
+
+        nav a:hover {
+            color: #1DB954;
+        }
+
+        .user-profile {
+            position: relative;
+        }
+
+        .profile-picture {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .profile-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background-color: #282828;
+            border-radius: 4px;
+            padding: 10px;
+            display: none;
+            z-index: 100;
+        }
+
+        .profile-dropdown.active {
+            display: block;
+        }
+
+        .profile-dropdown a {
+            display: block;
+            color: #fff;
+            text-decoration: none;
+            padding: 5px 10px;
+            font-size: 14px;
+        }
+
+        .profile-dropdown a:hover {
+            background-color: #1DB954;
+        }
+
+        .container {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        main {
+            flex: 1;
+            overflow-y: auto;
+            background: linear-gradient(to bottom, #1e1e1e, #121212);
+            padding: 24px;
+        }
+
+        .search-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 24px;
+            position: relative;
+        }
+
+        #search-input {
+            flex: 1;
+            background-color: #fff;
+            border: none;
+            padding: 12px 40px 12px 12px;
+            border-radius: 24px;
+            font-size: 14px;
+        }
+
+        .search-icon {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #121212;
+        }
+
+        .search-results {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 24px;
+        }
+
+        .song-card {
+            background-color: #181818;
+            border-radius: 8px;
+            padding: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+
+        .song-card:hover {
+            background-color: #282828;
+            transform: translateY(-5px);
+        }
+
+        .song-card img {
+            width: 100%;
+            aspect-ratio: 1;
+            object-fit: cover;
+            border-radius: 4px;
+            margin-bottom: 16px;
+            box-shadow: 0 4px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        .song-card h3 {
+            font-size: 14px;
+            margin-bottom: 8px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .song-card p {
+            font-size: 12px;
+            color: #b3b3b3;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        footer {
+            background-color: #181818;
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .now-playing {
+            display: flex;
+            align-items: center;
+            flex: 1;
+        }
+
+        .now-playing img {
+            width: 56px;
+            height: 56px;
+            border-radius: 4px;
+            margin-right: 16px;
+            box-shadow: 0 4px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        .song-info h4 {
+            font-size: 14px;
+            margin-bottom: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 300px;
+        }
+
+        .song-info p {
+            font-size: 12px;
+            color: #b3b3b3;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 300px;
+        }
+
+        .controls {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+        }
+
+        .control-buttons {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .control-buttons button {
+            background: none;
+            border: none;
+            color: #b3b3b3;
+            cursor: pointer;
+            padding: 8px;
+            transition: color 0.3s;
+        }
+
+        .control-buttons button:hover {
+            color: #fff;
+        }
+
+        .play-button {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: #fff;
+            color: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 16px;
+            transition: transform 0.3s, background-color 0.3s;
+        }
+
+        .play-button:hover {
+            transform: scale(1.1);
+            background-color: #1DB954;
+        }
+
+        .progress-bar {
+            width: 100%;
+            max-width: 400px;
+            display: flex;
+            align-items: center;
+            font-size: 12px;
+            color: #b3b3b3;
+        }
+
+        .progress-bar input {
+            flex: 1;
+            margin: 0 8px;
+            background: transparent;
+        }
+
+        .progress-bar input::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 16px;
+            width: 16px;
+            border-radius: 50%;
+            background: #fff;
+            cursor: pointer;
+            margin-top: -6px;
+        }
+
+        .progress-bar input::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 4px;
+            background: #535353;
+            border-radius: 2px;
+        }
+
+        .volume-control {
+            display: flex;
+            align-items: center;
+        }
+
+        .volume-control input {
+            width: 100px;
+            background: transparent;
+        }
+
+        .volume-control input::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 16px;
+            width: 16px;
+            border-radius: 50%;
+            background: #fff;
+            cursor: pointer;
+            margin-top: -6px;
+        }
+
+        .volume-control input::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 4px;
+            background: #535353;
+            border-radius: 2px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loader-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s, visibility 0.3s;
+        }
+
+        .loader-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .loader {
+            width: 50px;
+            height: 50px;
+            border: 3px solid #1DB954;
+            border-top: 3px solid transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        .loader-text {
+            position: absolute;
+            top: 60%;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #fff;
+            font-size: 18px;
+            text-align: center;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+        }
+
+        .user-name {
+            margin-right: 10px;
+            font-size: 14px;
+            color: #fff;
+        }
+
+        .profile-picture {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            object-fit: cover;
+        }
+
+        .profile-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background-color: #282828;
+            border-radius: 4px;
+            padding: 10px;
+            display: none;
+            z-index: 100;
+        }
+
+        .profile-dropdown.active {
+            display: block;
+        }
+
+        .profile-dropdown a {
+            display: block;
+            color: #fff;
+            text-decoration: none;
+            padding: 5px 10px;
+            font-size: 14px;
+        }
+
+        .profile-dropdown a:hover {
+            background-color: #1DB954;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+
+            main {
+                padding: 16px;
+            }
+
+            .search-results {
+                grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+                gap: 16px;
+            }
+
+            footer {
+                flex-direction: column;
+                padding: 16px;
+            }
+
+            .now-playing {
+                margin-bottom: 16px;
+            }
+
+            .controls {
+                width: 100%;
+            }
+
+            .volume-control {
+                margin-top: 16px;
+            }
+        }
+    </style>
+</head>
 <body>
     <header>
-        <div class="logo">
-            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"> <path d="M20.4 12.9l-4.7-4.7c-.3-.3-.8-.3-1.1 0L9.3 13.5c-.3.3-.3.8 0 1.1l4.7 4.7c.3.3.8.3 1.1 0l5.3-5.3c.3-.3.3-.8 0-1.1z"/><path d="M3.6 11.1l4.7 4.7c.3.3.8.3 1.1 0l5.3-5.3c.3-.3.3-.8 0-1.1L9.3 4.7c-.3-.3-.8-.3-1.1 0L3.6 10c-.3.3-.3.8 0 1.1z"/></svg>
+        <a href="#" class="logo">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20.4 12.9l-4.7-4.7c-.3-.3-.8-.3-1.1 0L9.3 13.5c-.3.3-.3.8 0 1.1l4.7 4.7c.3.3.8.3 1.1 0l5.3-5.3c.3-.3.3-.8 0-1.1z"/>
+                <path d="M3.6 11.1l4.7 4.7c.3.3.8.3 1.1 0l5.3-5.3c.3-.3.3-.8 0-1.1L9.3 4.7c-.3-.3-.8-.3-1.1 0L3.6 10c-.3.3-.3.8 0 1.1z"/>
+            </svg>
             Pookiefy
+        </a>
+        <nav>
+            <a href="#" id="home-link">Home</a>
+            <a href="#" id="library-link">Library</a>
+            <a href="/login" id="login-link">Login</a>
+        </nav>
+        <div class="user-profile" style="display: none;">
+            <span class="user-name" id="user-name"></span>
+            <img src="https://via.placeholder.com/32" alt="Profile Picture" class="profile-picture" id="profile-picture">
+            <div class="profile-dropdown">
+                <a href="#" id="profile-link">Profile</a>
+                <a href="#" id="settings-link">Settings</a>
+                <a href="#" id="logout-link">Logout</a>
+            </div>
         </div>
     </header>
     <div class="container">
-        
         <main>
             <div class="search-container">
                 <input type="search" id="search-input" placeholder="What do you want to listen to?">
@@ -112,19 +566,94 @@
         const currentSongName = document.getElementById('current-song-name');
         const currentSongArtist = document.getElementById('current-song-artist');
         const loaderOverlay = document.getElementById('loader-overlay');
+        const loginLink = document.getElementById('login-link');
+        const userProfile = document.querySelector('.user-profile');
+        const profilePicture = document.getElementById('profile-picture');
+        const profileDropdown = document.querySelector('.profile-dropdown');
+        const logoutLink = document.getElementById('logout-link');
 
         let currentSong = null;
         let playlist = [];
         let currentIndex = 0;
         let isShuffled = false;
         let repeatMode = 'none'; // 'none', 'one', 'all'
-        let get_audio_error = 0 ;
-
+        let get_audio_error = 0;
+        let isLoggedIn = false;
         let searchTimeout = null;
 
+        async function checkUserLogin() {
+            try {
+                const response = await fetch('/user');  
+
+                if (!response.ok) {
+                    console.log("User not logged in");
+                    updateLoginState(false);
+                    return;
+                }
+
+                const data = await response.json();
+
+                if (data.success && data.user_data) {
+                    const userData = data.user_data;
+                    console.log("User is logged in");
+                    console.log(userData);
+                    updateLoginState(true, userData);
+                } else {
+                    console.log('User is not logged in.');
+                    updateLoginState(false);
+                }
+            } catch (error) {
+                console.error('Error checking user login:', error.message);
+                updateLoginState(false);
+            }
+        }
+
+        function updateLoginState(isLoggedIn, userData = null) {
+            const loginLink = document.getElementById('login-link');
+            const userProfile = document.querySelector('.user-profile');
+            const userName = document.getElementById('user-name');
+            const profilePicture = document.getElementById('profile-picture');
+
+            if (isLoggedIn && userData) {
+                loginLink.style.display = 'none';
+                userProfile.style.display = 'flex';
+                userName.textContent = userData.display_name;
+                profilePicture.src = userData.images[0]?.url || 'https://via.placeholder.com/32';
+                profilePicture.alt = userData.display_name;
+            } else {
+                loginLink.style.display = 'block';
+                userProfile.style.display = 'none';
+            }
+        }
+
+        // Toggle profile dropdown
+        profilePicture.addEventListener('click', () => {
+            profileDropdown.classList.toggle('active');
+        });
+
+        // Close profile dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!userProfile.contains(e.target)) {
+                profileDropdown.classList.remove('active');
+            }
+        });
+
+        // Logout functionality
+        logoutLink.addEventListener('click', async (e) => {
+            e.preventDefault();
+            try {
+                const response = await fetch('/logout', { method: 'POST' });
+                if (response.ok) {
+                    updateLoginState(false);
+                } else {
+                    console.error('Logout failed');
+                }
+            } catch (error) {
+                console.error('Error during logout:', error);
+            }
+        });
+
         const artists = ["The weekend","Taylor Swift","The Neighborhood"];
-
-
     // Pick a random artist from the array
         const randomArtist = artists[Math.floor(Math.random() * artists.length)];
         performSearch(randomArtist);
@@ -440,7 +969,7 @@
                 audioPlayer.volume = volumeSlider.value / 100;
             }
         });
-
+        checkUserLogin();
     </script>
 </body>
 </html>
