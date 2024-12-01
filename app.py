@@ -20,7 +20,7 @@ CORS(app, resources={r"/*": {"origins": "*"}})  # Allow all origins
 # Load credentials and configuration from environment variables
 SPOTIFY_CLIENT_ID = '9241546ed80f472785347051926375e2'
 SPOTIFY_CLIENT_SECRET = 'ca7e1e03d6084328ad96faf52930b171'
-SPOTIFY_REDIRECT_URI = "https://literate-space-succotash-q77g59qx6jp93p5p-2007.app.github.dev/callback"
+SPOTIFY_REDIRECT_URI = os.getenv('SPOTIFY_REDIRECT_URI') 
 
 
 spotify_token_cache = TTLCache(maxsize=1, ttl=3600)
