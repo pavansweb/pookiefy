@@ -453,7 +453,7 @@ footer {
     font-family: 'Poppins', sans-serif;
     background: linear-gradient(135deg, #1DB954, #191414);
     color: white;
-    max-height: 80vh;
+    height: 80vh;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -614,6 +614,9 @@ footer {
 }
 
 @media (max-width: 768px) {
+    .defaultHomePageWithoutLogin{
+        height: 65vh;
+    }
     .navbar{
         display: none;
     }
