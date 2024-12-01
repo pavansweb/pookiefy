@@ -270,6 +270,7 @@
                 displayFavoriteArtists(data.favorite_artists);
                 displayRecentlyPlayed(data.recently_played);
             } else {
+                document.querySelector('.defaultHomePageWithoutLogin').style.display = 'flex';
                 loginLink.style.display = 'block';
                 userProfile.style.display = 'none';
             }
@@ -379,6 +380,7 @@ function displayFavoriteArtists(favoriteArtists) {
 }    
 
 function displaySearchResults(songs) {
+            document.querySelector('.defaultHomePageWithoutLogin').style.display = 'none';
             document.querySelector('.homepage-container').style.display = 'none'
             document.querySelector('#searchResultsHeading').style.display = 'block'
             searchResults.innerHTML = '';
@@ -436,6 +438,7 @@ function displaySearchResults(songs) {
                 if (searchTerm.length > 0) {
                     performSearch(searchTerm);
                 } else {
+                    document.querySelector('.defaultHomePageWithoutLogin').style.display = 'flex';
                     searchResults.innerHTML = '';
                 }
             }, 300);
