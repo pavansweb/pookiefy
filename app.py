@@ -38,7 +38,17 @@ sp_oauth = SpotifyOAuth(
 # Spotify instance
 sp = Spotify(auth_manager=sp_oauth)
 
-
+# Function to ping a website
+def ping_website(url):
+    try:
+        response = requests.get(url)
+        if response.status_code == 200:
+            return {"message": f"{url}  is up", "status_code": response.status_code}
+        else:
+            return {"message": "Website is down or unreachable", "status_code": response.status_code}
+    except requests.exceptions.RequestException as e:
+        return {"message": "Error reaching the website", "error": str(e)}
+    
 def get_spotify_token():
     if 'token' in spotify_token_cache:
         return spotify_token_cache['token']
@@ -60,6 +70,10 @@ def get_spotify_token():
 # Route for non-logged-in users
 @app.route('/')
 def index():
+
+    # Ping pookiefy-song-routes to make sure its up
+    print(ping_website('https://pookiefy-song-routes.onrender.com'))
+
     # Check if the user is logged in
     user_info = session.get('user_info', None)
     
@@ -74,6 +88,9 @@ def index():
 # Route for logged-in users
 @app.route('/home')
 def home():
+    # Ping pookiefy-song-routes to make sure its up
+    print(ping_website('https://pookiefy-song-routes.onrender.com'))
+    
     # Check if the user is logged in
     user_info = session.get('user_info', None)
     
