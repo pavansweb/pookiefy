@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pookiefy - Your Personal Music Haven</title>
+    <link rel="icon" href="https://i.postimg.cc/C5GvB590/Capture.jpg">
+    <link rel="stylesheet" href="/static/css/style.css">
+    <style> </style>
+</head>
+<body>
+    <header>
+        <a href="#" class="logo">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20.4 12.9l-4.7-4.7c-.3-.3-.8-.3-1.1 0L9.3 13.5c-.3.3-.3.8 0 1.1l4.7 4.7c.3.3.8.3 1.1 0l5.3-5.3c.3-.3.3-.8 0-1.1z"/>
+                <path d="M3.6 11.1l4.7 4.7c.3.3.8.3 1.1 0l5.3-5.3c.3-.3.3-.8 0-1.1L9.3 4.7c-.3-.3-.8-.3-1.1 0L3.6 10c-.3.3-.3.8 0 1.1z"/>
+            </svg>
+            Pookiefy
+        </a>
+        <header class="no-select">
+            <a href="#" id="home-link">Home</a>
+            <a href="#" id="library-link">Library</a>
+            <a href="/login" id="login-link">Login</a>
+        </header>
+        <div class="user-profile" style="display: none;">
+            <span class="user-name" id="user-name"></span>
+            <img src="https://via.placeholder.com/32" alt="Profile Picture" class="profile-picture" id="profile-picture">
+            <a href="#" id="logout-link">Logout</a>
+            
+        </div>
+    </header>
+
+    
+    
+    <div class="container">
+        <nav class="navbar ">
+        
+            <ul class="navbar-menu no-select">
+                <li class="navbar-item active">
+                    <a href="#home">
+                        <svg viewBox="0 0 512 512" width="24" height="24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M 256.274 60.84 L 84.324 166.237 L 84.324 443.063 L 193.27 443.063 L 193.27 293.73 L 320.228 293.73 L 320.228 443.063 L 428.222 443.063 L 428.222 165.476 L 256.274 60.84 Z M 256.274 35.95 L 448.452 149.145 L 448.452 464.395 L 300 464.395 L 300 315.062 L 213.499 315.062 L 213.499 464.395 L 64.095 464.395 L 64.095 150.161 L 256.274 35.95 Z" fill="currentColor"></path>
+                        </svg>
+                        <span>Home</span>
+                    </a>
+                </li>
+                <li class="navbar-item">
+                    <a href="#search">
+                        <svg viewBox="0 0 512 512" width="24" height="24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M349.714 347.937l93.714 109.969-16.254 13.969-93.969-109.969q-48.508 36.825-109.207 36.825-36.826 0-70.476-14.349t-57.905-38.603-38.603-57.905-14.349-70.476 14.349-70.476 38.603-57.905 57.905-38.603 70.476-14.349 70.476 14.349 57.905 38.603 38.603 57.905 14.349 70.476q0 37.841-14.73 71.619t-40.889 58.921zM224 377.397q43.428 0 80.254-21.461t58.286-58.286 21.461-80.254-21.461-80.254-58.286-58.285-80.254-21.46-80.254 21.46-58.285 58.285-21.46 80.254 21.46 80.254 58.285 58.286 80.254 21.461z" fill="currentColor" fill-rule="evenodd"></path>
+                        </svg>
+                        <span>Search</span>
+                    </a>
+                </li>
+                <li class="navbar-item">
+                    <a href="#library">
+                        <svg viewBox="0 0 512 512" width="24" height="24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M291.301 81.778l166.349 373.587-19.301 8.635-166.349-373.587zM64 463.746v-384h21.334v384h-21.334zM192 463.746v-384h21.334v384h-21.334z" fill="currentColor"></path>
+                        </svg>
+                        <span>Your Library</span>
+                    </a>
+                </li>
+            </ul>
+            
+            <div class="navbar-user">
+                <a href="#profile" class="user-profile">
+                    <span class="nav-user-name user-name" >User</span>
+                    <img src="https://via.placeholder.com/40" alt="User Profile" class="nav-user-avatar profile-picture">
+                </a>
+            </div>
+        </nav>
+        <main>
+            <div class="search-container">
+                <input type="search" id="search-input" placeholder="What do you want to listen to?">
+                <svg class="search-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+            </div>
+            <div class="defaultHomePageWithoutLogin">
+                <div class="landing-content">
+                    <h1 class="landing-title">Pookeify</h1>
+                    <p class="landing-subtitle">Use the Search bar above or login using the top right link!</p>
+                    <a href="/login" class="cta-button">Login Using Spotify</a>
+                    
+                    <div class="music-waves">
+                        <div class="wave"></div>
+                        <div class="wave"></div>
+                        <div class="wave"></div>
+                        <div class="wave"></div>
+                        <div class="wave"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="homepage-container">
+                <section class="homepage-section" id="top-songs">
+                    <h2>Your Top Songs</h2>
+                    <div class="item-grid">
+                        <!-- Items will be populated by JavaScript -->
+                    </div>
+                </section>
+                <section class="homepage-section" id="favorite-artists">
+                    <h2>Your Favorite Artists</h2>
+                    <div class="item-grid">
+                        <!-- Items will be populated by JavaScript -->
+                    </div>
+                </section>
+                <section class="homepage-section" id="recently-played">
+                    <h2>Recently Played</h2>
+                    <div class="item-grid">
+                        <!-- Items will be populated by JavaScript -->
+                    </div>
+                </section>
+            </div>
+            <h1 id="searchResultsHeading" style="display: none;"> Search Results:</h1>
+            <div class="search-results" id="search-results"></div>
+        </main>
+    </div>
+    <footer>
+        <div class="now-playing">
+            <img id="current-song-image" src="https://via.placeholder.com/56" alt="Album cover">
+            <div class="song-info">
+                <h4 id="current-song-name">Song Name</h4>
+                <p id="current-song-artist">Artist Name</p>
+            </div>
+        </div>
+        <div class="controls">
+            <div class="control-buttons">
+                <button id="shuffle-button">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="16 3 21 3 21 8"></polyline>
+                        <line x1="4" y1="20" x2="21" y2="3"></line>
+                        <polyline points="21 16 21 21 16 21"></polyline>
+                        <line x1="15" y1="15" x2="21" y2="21"></line>
+                        <line x1="4" y1="4" x2="9" y2="9"></line>
+                    </svg>
+                </button>
+                <button id="previous-button">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polygon points="19 20 9 12 19 4 19 20"></polygon>
+                        <line x1="5" y1="19" x2="5" y2="5"></line>
+                    </svg>
+                </button>
+                <button class="play-button" id="play-pause-button">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                    </svg>
+                </button>
+                <button id="next-button">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polygon points="5 4 15 12 5 20 5 4"></polygon>
+                        <line x1="19" y1="5" x2="19" y2="19"></line>
+                    </svg>
+                </button>
+                <button id="repeat-button">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="17 1 21 5 17 9"></polyline>
+                        <path d="M3 11V9a4 4 0 0 1 4-4h14"></path>
+                        <polyline points="7 23 3 19 7 15"></polyline>
+                        <path d="M21 13v2a4 4 0 0 1-4 4H3"></path>
+                    </svg>
+                </button>
+            </div>
+            <div class="progress-bar">
+                <span id="current-time">0:00</span>
+                <input type="range" id="progress-slider" min="0" max="100" value="0">
+                <span id="duration">0:00</span>
+            </div>
+        </div>
+        <div class="volume-control">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+            </svg>
+            <input type="range" id="volume-slider" min="0" max="100" value="100">
+        </div>
+    </footer>
+
+    <div id="loader-overlay" class="loader-overlay">
+        <div class="loader"></div>
+        <div class="loader-text">Loading your track... <br> ( the song gets delayed if its being played for the first time by a person!! SORYY) </div>
+    </div>
+
+    <audio id="audio-player"></audio>
+
+    <script src="/static/js/script.js"></script>
+</body>
+</html>

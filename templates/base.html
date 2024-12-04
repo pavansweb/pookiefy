@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Pookiefy{% endblock %}</title>
+    <link rel="icon" href="https://i.postimg.cc/C5GvB590/Capture.jpg">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    {% block head %}{% endblock %}
+</head>
+<body>
+    <header>
+        <a href="#" class="logo">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20.4 12.9l-4.7-4.7c-.3-.3-.8-.3-1.1 0L9.3 13.5c-.3.3-.3.8 0 1.1l4.7 4.7c.3.3.8.3 1.1 0l5.3-5.3c.3-.3.3-.8 0-1.1z"/>
+                <path d="M3.6 11.1l4.7 4.7c.3.3.8.3 1.1 0l5.3-5.3c.3-.3.3-.8 0-1.1L9.3 4.7c-.3-.3-.8-.3-1.1 0L3.6 10c-.3.3-.3.8 0 1.1z"/>
+            </svg>
+            Pookiefy
+        </a>
+        <header class="no-select">
+            {% block header_links %}
+            <a href="#" id="home-link">Home</a>
+            <a href="#" id="library-link">Library</a>
+            <a href="/login" id="login-link">Login</a>
+            {% endblock %}
+        </header>
+        <div class="user-profile" style="display: none;">
+            <span class="user-name" id="user-name"></span>
+            <img src="https://via.placeholder.com/32" alt="Profile Picture" class="profile-picture" id="profile-picture">
+            <a href="#" id="logout-link">Logout</a>
+        </div>
+    </header>
+
+    <div class="container">
+        <nav class="navbar">
+            {% block navbar %}{% endblock %}
+        </nav>
+        
+        <main>
+            {% block main_content %}{% endblock %}
+        </main>
+    </div>
+
+    <footer>
+        {% block footer %}
+        <div class="now-playing">
+            <img id="current-song-image" src="https://via.placeholder.com/56" alt="Album cover">
+            <div class="song-info">
+                <h4 id="current-song-name">Song Name</h4>
+                <p id="current-song-artist">Artist Name</p>
+            </div>
+        </div>
+        <div class="controls">
+            <div class="control-buttons">
+                <button id="shuffle-button">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="16 3 21 3 21 8"></polyline>
+                        <line x1="4" y1="20" x2="21" y2="3"></line>
+                        <polyline points="21 16 21 21 16 21"></polyline>
+                        <line x1="15" y1="15" x2="21" y2="21"></line>
+                        <line x1="4" y1="4" x2="9" y2="9"></line>
+                    </svg>
+                </button>
+                <button id="previous-button">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polygon points="19 20 9 12 19 4 19 20"></polygon>
+                        <line x1="5" y1="19" x2="5" y2="5"></line>
+                    </svg>
+                </button>
+                <button class="play-button" id="play-pause-button">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                    </svg>
+                </button>
+                <button id="next-button">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polygon points="5 4 15 12 5 20 5 4"></polygon>
+                        <line x1="19" y1="5" x2="19" y2="19"></line>
+                    </svg>
+                </button>
+                <button id="repeat-button">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="17 1 21 5 17 9"></polyline>
+                        <path d="M3 11V9a4 4 0 0 1 4-4h14"></path>
+                        <polyline points="7 23 3 19 7 15"></polyline>
+                        <path d="M21 13v2a4 4 0 0 1-4 4H3"></path>
+                    </svg>
+                </button>
+            </div>
+            <div class="progress-bar">
+                <span id="current-time">0:00</span>
+                <input type="range" id="progress-slider" min="0" max="100" value="0">
+                <span id="duration">0:00</span>
+            </div>
+        </div>
+        <div class="volume-control">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+            </svg>
+            <input type="range" id="volume-slider" min="0" max="100" value="100">
+        </div>
+        {% endblock %}
+    </footer>
+
+    <div id="loader-overlay" class="loader-overlay">
+        <div class="loader"></div>
+        <div class="loader-text">Loading your track... <br> ( the song gets delayed if its being played for the first time by a person!! SORYY) </div>
+    </div>
+
+    <audio id="audio-player"></audio>
+
+    {% block scripts %}{% endblock %}
+</body>
+</html>

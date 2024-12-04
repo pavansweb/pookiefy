@@ -57,22 +57,39 @@ def get_spotify_token():
     return token
 
  
+# Route for non-logged-in users
 @app.route('/')
 def index():
-    # Retrieve user info from the session if available
+    # Check if the user is logged in
     user_info = session.get('user_info', None)
     
-    # Check if the user is logged in
     if user_info:
-        # Extract profile details
-        user_name = user_info['display_name']
-        user_image = user_info['images'][0]['url'] if user_info['images'] else None
-        user_email = user_info.get('email')
-        
-        # Pass the user info to the template
-        return render_template('index.html', user_info=user_info, user_name=user_name, user_image=user_image, user_email=user_email)
-    else:
-       return render_template('index.html')
+        # Redirect to /home if logged in
+        return redirect(url_for('home'))
+    
+    # Render base page for non-logged-in users
+    return render_template('landing_page.html')
+
+
+# Route for logged-in users
+@app.route('/home')
+def home():
+    # Check if the user is logged in
+    user_info = session.get('user_info', None)
+    
+    if not user_info:
+        # Redirect to / if not logged in
+        return redirect(url_for('index'))
+    
+    # Extract user details
+    user_name = user_info['display_name']
+    user_image = user_info['images'][0]['url'] if user_info.get('images') else None
+    user_email = user_info.get('email')
+    
+    # Pass user details to the template
+    return render_template('home.html', user_info=user_info, user_name=user_name, user_image=user_image, user_email=user_email)
+
+
 
 @app.route('/login')
 def login():
