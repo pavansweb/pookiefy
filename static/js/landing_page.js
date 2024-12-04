@@ -26,40 +26,59 @@ let searchTimeout = null;
 
 
 
-const libraryBtn = document.querySelector('#library-btn') || undefined;
-const loginModal = document.getElementById('login-modal');
-const closeBtn = document.querySelector('.close-btn');
-const spotifyLoginBtn = document.querySelector('.spotify-login-btn');
+const libraryBtn = document.querySelector('#library-btn');
+    const loginModal = document.getElementById('login-modal');
+    const closeBtn = document.querySelector('.close-btn');
+    const spotifyLoginBtn = document.querySelector('.spotify-login-btn');
 
-shuffleButton.addEventListener('click', () => {
-    loginModal.style.display = 'block';
-    
-});
-repeatButton.addEventListener('click', () => {
-    loginModal.style.display = 'block';
-    
-});
-
-libraryBtn.addEventListener('click', () => {
-    loginModal.style.display = 'block';
-    
-});
-
-closeBtn.addEventListener('click', () => {
-    loginModal.style.display = 'none';
-});
-
-// In a real application, this would trigger Spotify OAuth
-spotifyLoginBtn.addEventListener('click', () => {
-    window.location.href = "/login";
-});
-
-// Close modal if clicking outside the modal content
-loginModal.addEventListener('click', (event) => {
-    if (event.target === loginModal) {
-        loginModal.style.display = 'none';
+    // Function to show the modal
+    function showModal() {
+        if (loginModal) {
+            loginModal.classList.add('show');
+            document.body.style.overflow = 'hidden';
+        }
     }
-});
+
+    // Function to hide the modal
+    function hideModal() {
+        if (loginModal) {
+            loginModal.classList.remove('show');
+            document.body.style.overflow = 'auto';
+        }
+    }
+
+    // Add event listeners with null checks
+    if (shuffleButton) {
+        shuffleButton.addEventListener('click', showModal);
+    }
+
+    if (repeatButton) {
+        repeatButton.addEventListener('click', showModal);
+    }
+
+    if (libraryBtn) {
+        libraryBtn.addEventListener('click', showModal);
+    }
+
+    if (closeBtn) {
+        closeBtn.addEventListener('click', hideModal);
+    }
+
+    // Close modal if clicking outside the modal content
+    if (loginModal) {
+        loginModal.addEventListener('click', (event) => {
+            if (event.target === loginModal) {
+                hideModal();
+            }
+        });
+
+        // Close modal with Escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && loginModal.classList.contains('show')) {
+                hideModal();
+            }
+        });
+    }
 
 // Function to toggle visibility of the navbar based on screen width
 function toggleNavbarVisibility() {

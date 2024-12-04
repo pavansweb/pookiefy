@@ -13,21 +13,32 @@
     <link rel="stylesheet" href="/static/css/login_modal.css">
 </head>
 <body>
-    <!-- Login Modal -->
-    <div id="login-modal">
+     <!-- Login Modal -->
+     <div id="login-modal">
         <div class="modal-content">
-            <span class="close-btn">&times;</span>
-            <h2>Login</h2>
-            <p>After logging into Spotify you can:</p>
-            <ul>
-                <li>Use Playlists</li>
-                <li>Use shuffle songs</li>
-                <li>Use loop songs</li>
+            <button class="close-btn" aria-label="Close login modal">&times;</button>
+            <h2>Login with Spotify </h2>
+            <p>Connect with Spotify to unlock premium features</p>
+            
+            <ul class="features-list">
+                <li>
+                    <i class="fas fa-list"></i>
+                    <span>Playlists</span>
+                </li>
+                <li>
+                    <i class="fas fa-random"></i>
+                    <span>Shuffle</span>
+                </li>
+                <li>
+                    <i class="fas fa-redo"></i>
+                    <span>Loop Songs</span>
+                </li>
             </ul>
-            <button class="spotify-login-btn">
+
+            <a href="/login"><button class="spotify-login-btn" aria-label="Login with Spotify">
                 <i class="fab fa-spotify"></i>
                 Login with Spotify
-            </button>
+            </button></a>
         </div>
     </div>
     
@@ -119,7 +130,6 @@
         </main>
     </div>
     
-    <!-- Footer (Now Playing) -->
     <footer>
         <!-- Current Song Info -->
         <div class="now-playing">
