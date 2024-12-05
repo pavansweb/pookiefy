@@ -23,7 +23,8 @@ SPOTIFY_CLIENT_SECRET = 'ca7e1e03d6084328ad96faf52930b171'
 SPOTIFY_REDIRECT_URI = os.getenv('SPOTIFY_REDIRECT_URI') 
 
 
-spotify_token_cache = TTLCache(maxsize=1, ttl=3600)
+spotify_token_cache = {}  # Use a simple dictionary without expiration
+
  
 # Spotify OAuth object
 sp_oauth = SpotifyOAuth(
@@ -70,19 +71,23 @@ def get_spotify_token():
 # Route for non-logged-in users
 @app.route('/')
 def index():
-
-    # Ping pookiefy-song-routes to make sure its up
+    # Ping a website to ensure it's up
     print(ping_website('https://pookiefy-song-routes.onrender.com'))
 
     # Check if the user is logged in
     user_info = session.get('user_info', None)
-    
+    is_logged_in = bool(user_info)
+
     if user_info:
-        # Redirect to /home if logged in
-        return redirect(url_for('home'))
-    
-    # Render base page for non-logged-in users
-    return render_template('landing_page.html')
+        # User is logged in: Load logged-in content
+        main_content = render_template('partials/logged_in_main.html', user_info=user_info)
+    else:
+        # User is not logged in: Load guest content
+        main_content = render_template('partials/guest_main.html')
+
+    # Render the landing page with dynamic main content
+    return render_template('landing_page.html', main_content=main_content ,is_logged_in=is_logged_in)
+
 
 
 # Route for logged-in users

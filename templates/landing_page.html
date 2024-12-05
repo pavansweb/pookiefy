@@ -9,7 +9,7 @@
     <link rel="icon" href="https://i.postimg.cc/C5GvB590/Capture.jpg">
     
     <!-- Stylesheets -->
-    <link rel="stylesheet" href="/static/css/landing_page.css">
+    <link rel="stylesheet" href="/static/css/styles.css">
     <link rel="stylesheet" href="/static/css/login_modal.css">
 </head>
 <body>
@@ -42,6 +42,12 @@
         </div>
     </div>
     
+    <!-- Custom Message -->
+    <div id="custom-message">
+        <button id="message-close">×</button>
+        <div id="message-content"></div>
+    </div>
+
     <!-- Header -->
     <header>
         <!-- Logo -->
@@ -52,7 +58,7 @@
             </svg>
             Pookiefy
         </a>
-        <a href="/login">Login</a>
+        <a href="/login" id="header-login-link">Login</a>
         
         <!-- Hamburger Menu -->
         <div class="no-select">
@@ -79,57 +85,31 @@
                 </li>
                 <li class="navbar-item">
                     <button id="nav-search-btn">
-                        <svg viewBox="0 0 512 512" width="24" height="24" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M349.714 347.937l93.714 109.969-16.254 13.969-93.969-109.969q-48.508 36.825-109.207 36.825-36.826 0-70.476-14.349t-57.905-38.603-38.603-57.905-14.349-70.476 14.349-70.476 38.603-57.905 57.905-38.603 70.476-14.349 70.476 14.349 57.905 38.603 38.603 57.905 14.349 70.476q0 37.841-14.73 71.619t-40.889 58.921zM224 377.397q43.428 0 80.254-21.461t58.286-58.286 21.461-80.254-21.461-80.254-58.286-58.285-80.254-21.46-80.254 21.46-58.285 58.285-21.46 80.254 21.46 80.254 58.285 58.286 80.254 21.461z" fill="currentColor" fill-rule="evenodd"></path>
-                        </svg>
+                        <img src="static/icons/search-icon.svg" height="20">
                         <span>Search</span>
                     </button>
                 </li>
                 <li class="navbar-item">
                     <button id="library-btn">
-                        <svg viewBox="0 0 512 512" width="24" height="24" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M291.301 81.778l166.349 373.587-19.301 8.635-166.349-373.587zM64 463.746v-384h21.334v384h-21.334zM192 463.746v-384h21.334v384h-21.334z" fill="currentColor"></path>
-                        </svg>
+                        <img src="static/icons/library.svg" height="20"></img>
                         <span>Your Library</span>
+                    </button>
+                </li>
+                <li class="navbar-item logout-btn-nav">
+                    <button id="library-btn">
+                        <img src="static/icons/logout-btn.svg" height="20"></img>
+                        <span><a href="#" id="logout-link" style="text-decoration: none; color: inherit;">Logout</a></span>
                     </button>
                 </li>
             </ul>
         </nav>
         
         <!-- Main Content -->
-        <main>
-            <!-- Search Container -->
-            <div class="search-container">
-                <input type="search" id="search-input" placeholder="What do you want to listen to?">
-                <svg class="search-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="11" cy="11" r="8"></circle>
-                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                </svg>
-            </div>
-            
-            <!-- Default Home Page (Before Login) -->
-            <div class="defaultHomePageWithoutLogin">
-                <div class="landing-content">
-                    <h1 class="landing-title">Pookeify</h1>
-                    <p class="landing-subtitle">Use the Search bar above or login using the top right link!</p>
-                    <a href="/login" class="cta-button">Login Using Spotify</a>
-                    
-                    <div class="music-waves">
-                        <div class="wave"></div>
-                        <div class="wave"></div>
-                        <div class="wave"></div>
-                        <div class="wave"></div>
-                        <div class="wave"></div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Search Results -->
-            <h1 id="searchResultsHeading" style="display: none;">Search Results:</h1>
-            <div class="search-results" id="search-results"></div>
+        <main id="dynamic-content">
+            {{ main_content|safe }}
         </main>
     </div>
-    
+
     <footer>
         <!-- Current Song Info -->
         <div class="now-playing">
@@ -197,6 +177,8 @@
         </div>
     </footer>
     
+    
+    
     <!-- Loader Overlay -->
     <div id="loader-overlay" class="loader-overlay">
         <div class="loader"></div>
@@ -207,6 +189,9 @@
     <audio id="audio-player"></audio>
     
     <!-- JavaScript -->
-    <script src="/static/js/landing_page.js"></script>
+    <script src="/static/js/meow.js"></script>
+    <script>
+        const isLoggedIn = {{ is_logged_in | tojson }};
+    </script>
 </body>
 </html>

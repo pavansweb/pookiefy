@@ -1,35 +1,35 @@
 
-const searchInput = document.getElementById('search-input');
-const searchResults = document.getElementById('search-results');
-const audioPlayer = document.getElementById('audio-player');
-const playPauseButton = document.getElementById('play-pause-button');
-const previousButton = document.getElementById('previous-button');
-const nextButton = document.getElementById('next-button');
-const shuffleButton = document.getElementById('shuffle-button');
-const repeatButton = document.getElementById('repeat-button');
-const progressSlider = document.getElementById('progress-slider');
-const currentTimeDisplay = document.getElementById('current-time');
-const durationDisplay = document.getElementById('duration');
-const volumeSlider = document.getElementById('volume-slider');
-const currentSongImage = document.getElementById('current-song-image');
-const currentSongName = document.getElementById('current-song-name');
-const currentSongArtist = document.getElementById('current-song-artist');
-const loaderOverlay = document.getElementById('loader-overlay');
+        const searchInput = document.getElementById('search-input');
+        const searchResults = document.getElementById('search-results');
+        const audioPlayer = document.getElementById('audio-player');
+        const playPauseButton = document.getElementById('play-pause-button');
+        const previousButton = document.getElementById('previous-button');
+        const nextButton = document.getElementById('next-button');
+        const shuffleButton = document.getElementById('shuffle-button');
+        const repeatButton = document.getElementById('repeat-button');
+        const progressSlider = document.getElementById('progress-slider');
+        const currentTimeDisplay = document.getElementById('current-time');
+        const durationDisplay = document.getElementById('duration');
+        const volumeSlider = document.getElementById('volume-slider');
+        const currentSongImage = document.getElementById('current-song-image');
+        const currentSongName = document.getElementById('current-song-name');
+        const currentSongArtist = document.getElementById('current-song-artist');
+        const loaderOverlay = document.getElementById('loader-overlay');
 
-let currentSong = null;
-let playlist = [];
-let currentIndex = 0;
-let isShuffled = false;
-let repeatMode = 'none'; // 'none', 'one', 'all'
-let get_audio_error = 0;
-let searchTimeout = null;
+        let currentSong = null;
+        let playlist = [];
+        let currentIndex = 0;
+        let isShuffled = false;
+        let repeatMode = 'none'; // 'none', 'one', 'all'
+        let get_audio_error = 0;
+        let searchTimeout = null;
 
 
 
-const libraryBtn = document.querySelector('#library-btn');
-    const loginModal = document.getElementById('login-modal');
-    const closeBtn = document.querySelector('.close-btn');
-    const spotifyLoginBtn = document.querySelector('.spotify-login-btn');
+        const libraryBtn = document.querySelector('#library-btn');
+            const loginModal = document.getElementById('login-modal');
+            const closeBtn = document.querySelector('.close-btn');
+            const spotifyLoginBtn = document.querySelector('.spotify-login-btn');
 
     // Function to show the modal
     function showModal() {
@@ -96,51 +96,6 @@ function toggleNavbarVisibility() {
 window.addEventListener('load', toggleNavbarVisibility);
 window.addEventListener('resize', toggleNavbarVisibility);
 
-function displaySearchResults(songs) {
-    document.querySelector('.defaultHomePageWithoutLogin').style.display = 'none';
-    document.querySelector('#searchResultsHeading').style.display = 'block'
-    searchResults.innerHTML = '';
-    songs.forEach(song => {
-        const songCard = document.createElement('div');
-        songCard.className = 'song-card';
-        songCard.innerHTML = `
-            <img src="${song.album.images[0].url}" alt="${song.name} album cover">
-            <h3>${song.name}</h3>
-            <p>${song.artists.map(artist => artist.name).join(', ')}</p>
-        `;
-        songCard.addEventListener('click', () => {
-            playlist = songs;
-            currentIndex = playlist.indexOf(song);
-            playSong(song);
-        });
-        searchResults.appendChild(songCard); 
-    });
-}
-
-
-document.getElementById('nav-search-btn').addEventListener('click', function() {
-    document.getElementById('search-input').focus();
-    document.getElementById('search-input').placeholder = "Search here!!" ;
-});
-
-document.getElementById('hamburger-btn').addEventListener('click', function() {
-    if (document.querySelector('.navbar').style.display == 'none') {
-        document.querySelector('.navbar').style.display = 'flex';
-    } else {
-        document.querySelector('.navbar').style.display = 'none';
-    }
-});
-
-
-searchInput.addEventListener('input', () => {
-        const searchTerm = searchInput.value.trim();
-        if (searchTerm.length > 0) {
-            performSearch(searchTerm);
-        } else {
-            document.querySelector('.defaultHomePageWithoutLogin').style.display = 'flex';
-            searchResults.innerHTML = '';
-        }
-});
 
 async function performSearch(searchTerm) {
     try {
