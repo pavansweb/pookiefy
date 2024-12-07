@@ -67,7 +67,37 @@ def get_spotify_token():
         spotify_token_cache['token'] = token  # Cache the token
     return token
 
- 
+def get_spotify_client():
+    token_info = session.get('token_info')
+
+    if not token_info:
+        return None
+
+    # Check if token has expired and refresh it
+    if sp_oauth.is_token_expired(token_info):
+        token_info = sp_oauth.refresh_access_token(token_info['refresh_token'])
+        session['token_info'] = token_info  # Update session with the new token info
+
+    return Spotify(auth=token_info['access_token'])
+
+
+@app.route('/non-logged-in')
+def non_logged_in():
+    # For non-logged-in users, render the guest main content
+    return render_template('partials/guest_main.html')
+
+@app.route('/logged-in-user')
+def user():
+    # For logged-in users, render the logged-in main content
+    user_info = session.get('user_info', None)
+    if user_info:
+        # Render the template for logged-in users
+        rendered_content = render_template('partials/logged_in_main.html', user_info=user_info)
+        return jsonify({'success': True, 'user_data': rendered_content})
+    else:
+        # If not logged in, return a failure response
+        return jsonify({'success': False, 'error': 'You need to log in'}), 401
+
 # Route for non-logged-in users
 @app.route('/')
 def index():
@@ -78,7 +108,7 @@ def index():
     user_info = session.get('user_info', None)
     is_logged_in = bool(user_info)
 
-    if user_info:
+    if user_info: 
         # User is logged in: Load logged-in content
         main_content = render_template('partials/logged_in_main.html', user_info=user_info)
     else:
@@ -88,29 +118,54 @@ def index():
     # Render the landing page with dynamic main content
     return render_template('landing_page.html', main_content=main_content ,is_logged_in=is_logged_in)
 
-
-
-# Route for logged-in users
-@app.route('/home')
-def home():
-    # Ping pookiefy-song-routes to make sure its up
-    print(ping_website('https://pookiefy-song-routes.onrender.com'))
-    
+@app.route('/library')
+def library():
     # Check if the user is logged in
-    user_info = session.get('user_info', None)
+    token_info = session.get('token_info')
     
-    if not user_info:
-        # Redirect to / if not logged in
-        return redirect(url_for('index'))
+    print("Token info:", token_info)  # Debug print to check token information
     
-    # Extract user details
-    user_name = user_info['display_name']
-    user_image = user_info['images'][0]['url'] if user_info.get('images') else None
-    user_email = user_info.get('email')
-    
-    # Pass user details to the template
-    return render_template('home.html', user_info=user_info, user_name=user_name, user_image=user_image, user_email=user_email)
+    if token_info:
+        try:
+            # Create a Spotify instance using the stored access token
+            sp = Spotify(auth=token_info['access_token'])
+            print("Spotify instance created successfully.")  # Debug print
+            
+            # Fetch the user's playlists
+            playlists = sp.current_user_playlists(limit=10)  # Fetch top 10 playlists
+            print("Fetched playlists:", playlists)  # Debug print to check fetched playlists
 
+            # Check if 'items' exists in the response
+            if 'items' in playlists:
+                print("'items' found in playlists.")  # Debug print
+                # Format the playlists to be passed to the template
+               # Filter out None values from playlists
+                formatted_playlists = [
+                    {
+                        'name': playlist['name'],
+                        'id': playlist['id'],
+                        'description': playlist['description'],
+                        'external_urls': playlist['external_urls'],
+                        'images': playlist['images'],
+                    }
+                    for playlist in playlists['items'] if playlist is not None
+                ]
+
+                print("Formatted playlists:", formatted_playlists)  # Debug print to check formatted playlists
+            else:
+                print("'items' not found in playlists response.")  # Debug print if 'items' is missing
+                formatted_playlists = []
+
+            # Render the library template with the playlists
+            return render_template('partials/library.html', playlists=formatted_playlists)
+        
+        except Exception as e:
+            print("Error occurred:", e)  # Debug print to check error
+            return jsonify({'success': False, 'error': str(e)}), 500
+    else:
+        print("User is not logged in.")  # Debug print to check if the user is logged in
+        # User is not logged in
+        return redirect(url_for('index'))
 
 
 @app.route('/login')

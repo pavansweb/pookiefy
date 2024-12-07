@@ -32,6 +32,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const currentSongArtist = document.getElementById('current-song-artist');
     const loaderOverlay = document.getElementById('loader-overlay');
     const logoutLink = document.getElementById('logout-link');
+    const dynamicMainContent = document.getElementById('dynamic-content');
 
     let currentSong = null;
     let playlist = [];
@@ -40,6 +41,8 @@ document.addEventListener("DOMContentLoaded", () => {
     let repeatMode = 'none'; // 'none', 'one', 'all'
     let get_audio_error = 0;
     let searchTimeout = null;
+    let currentPage = "home";
+    console.log(currentPage);
 
 
 
@@ -48,9 +51,23 @@ document.addEventListener("DOMContentLoaded", () => {
     const closeBtn = document.querySelector('.close-btn');
     const spotifyLoginBtn = document.querySelector('.spotify-login-btn');
 
-    libraryBtn.addEventListener('click', (e) =>{
-        displayMessage('This Section is still under progress, pre-boards uff',3)
-    })
+    // Function to show the modal
+    function showModal() {
+        if (loginModal) {
+            loginModal.classList.add('show');
+            document.body.style.overflow = 'hidden';
+        }
+    }
+
+    // Function to hide the modal
+    function hideModal() {
+        if (loginModal) {
+            loginModal.classList.remove('show');
+            document.body.style.overflow = 'auto';
+        }
+    }
+
+    
     function displayMessage(message, duration = null) {
         const messageContainer = document.getElementById('custom-message');
         const messageContent = document.getElementById('message-content');
@@ -75,13 +92,56 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
+    
+
     if (isLoggedIn) {
         
         console.log("User is logged in. Loading personalized content...");
         checkUserLogin()
         document.querySelector('.logout-btn-nav').style.display = 'block';
         document.querySelector('#header-login-link').style.display = "none"
+        // Add event listener to the home button
+        document.getElementById('home-button').addEventListener('click', loadLoggedInUserHomePageContent);
+
+
+        // Load logged-in content
+        function loadLoggedInUserHomePageContent() {
+            
+        toggleNavbarVisibility();
+            console.log('hi');
+            $.ajax({
+                url: '/logged-in-user',  // Flask route for logged-in users
+                type: 'GET',
+                success: function(response) {
+                    if (response.success) {
+                        console.log(response);
+                        currentPage = "home";
+                        $('#dynamic-content').html(response.user_data);  // Replace main content with the logged-in partial
+                        checkUserLogin();  // Function to check if the user is logged in (assuming it's already defined)
+                        document.getElementById('search-input').focus();
+                    } else {
+                        alert("You need to log in");
+                    }
+                },
+                error: function() {
+                    alert("Error loading logged-in content");
+                }
+            });
+        }
         
+
+        libraryBtn.addEventListener('click', (e) => {
+            $.get('/library', function(data) {
+                // On success, inject the returned HTML content into the libraryContainer
+                $('#dynamic-content').html(data);
+                currentPage = "library";
+                toggleNavbarVisibility();
+                console.log(currentPage);
+            }).fail(function() {
+                alert('Error loading library data');
+            });
+        });
+
         // Logout functionality
         logoutLink.addEventListener('click', async (e) => {
             e.preventDefault();
@@ -97,20 +157,18 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
 
+
         async function checkUserLogin() {
-            console.log(1)
             try {
                 const response = await fetch('/user');  
         
                 if (!response.ok) {
-                    console.log("User not logged in");
                     return;
                 }
         
                 const data = await response.json();
         
                 if (data.success && data.user_data) {
-                    console.log("User is logged in");
                     console.log(data);
                     updateLoginState(true, data);
                 } else {
@@ -124,16 +182,16 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         
         function updateLoginState(isLoggedIn, data = null) {
-            // console.log(isLoggedIn,data);
-            // const userProfile = document.querySelector('.user-profile');
-            // const userName = document.getElementById('user-name');
-            // const profilePicture = document.getElementById('profile-picture');
+            console.log(isLoggedIn,data);
+            const userProfile = document.querySelector('.user-profile');
+            const userName = document.getElementById('user-name');
+            const profilePicture = document.getElementById('profile-picture');
         
             if (isLoggedIn) {
-                // userProfile.style.display = 'flex';
-                // userName.textContent = data.user_data.display_name;
-                // profilePicture.src = data.user_data.images[0]?.url || 'https://via.placeholder.com/32';
-                // profilePicture.alt = data.user_data.display_name;
+                userProfile.style.display = 'flex';
+                userName.textContent = data.user_data.display_name;
+                profilePicture.src = data.user_data.images[0]?.url || 'https://via.placeholder.com/32';
+                profilePicture.alt = data.user_data.display_name;
         
                 document.querySelector('.homepage-container').style.display = 'flex'
                 displayFavoriteSongs(data.favorite_tracks);
@@ -256,17 +314,26 @@ document.addEventListener("DOMContentLoaded", () => {
         console.log("User is not logged in. Showing guest content...");
         document.querySelector('.logout-btn-nav').style.display = 'none';
         document.querySelector('#header-login-link').style.display = "block"
+
+        libraryBtn.addEventListener('click', (e) =>{
+            showModal();
+         })
+        
+
     }
 
 
     function displaySearchResults(songs , isLoggedIn) {
+        console.log("Displaying Search Results");
         if (isLoggedIn) {
             document.querySelector('.homepage-container').style.display = 'none'
         } else {
             document.querySelector('.defaultHomePageWithoutLogin').style.display = 'none';
         }
-        
         document.querySelector('#searchResultsHeading').style.display = 'block'
+        
+    const searchResults = document.getElementById('search-results');
+        
         searchResults.innerHTML = '';
         songs.forEach(song => {
             const songCard = document.createElement('div');
@@ -286,22 +353,46 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     
     
-    document.getElementById('nav-search-btn').addEventListener('click', function() {
-        document.getElementById('search-input').focus();
-        document.getElementById('search-input').placeholder = "Search here!!" ;
+    document.getElementById('nav-search-btn').addEventListener('click', function () {
+        toggleNavbarVisibility();
+        if (currentPage !== "home") {
+            loadLoggedInUserHomePageContent();
+        } else {
+
+            document.getElementById('search-input').focus();
+            document.getElementById('search-input').placeholder = "Search here!!";
+        }
     });
     
     document.getElementById('hamburger-btn').addEventListener('click', function() {
-        if (document.querySelector('.navbar').style.display == 'none') {
-            document.querySelector('.navbar').style.display = 'flex';
-        } else {
-            document.querySelector('.navbar').style.display = 'none';
-        }
+        toggleNavbarVisibility();
     });
+    function toggleNavbarVisibility() {
+        if (window.innerWidth <= 760) {
+            const navbar = document.querySelector('.navbar');
+            if (navbar.style.display == 'none') {
+                navbar.style.display = 'block'; // Hide the navbar
+            } else {
+                navbar.style.display = 'none'; // Show the navbar
+            }
+        } else {
+
+        }
+
+    }
     
   
 
     searchInput.addEventListener('input', () => {
+
+        if (window.innerWidth <= 768) {
+            
+        document.querySelector('.navbar').style.display = 'none';
+        }
+        
+        if (currentPage != "home") {
+            loadLoggedInUserHomePageContent();
+        }
         clearTimeout(searchTimeout);
         searchTimeout = setTimeout(() => {
             const searchTerm = searchInput.value.trim();
@@ -310,8 +401,17 @@ document.addEventListener("DOMContentLoaded", () => {
             } else {
                 searchResults.innerHTML = '';
             }
-        }, 100);
+        }, 10);
     });
+
+    document.getElementById('search-input').addEventListener('input', () =>{
+        const searchTerm = document.getElementById('search-input').value.trim;
+        if (searchTerm.length > 0) {
+            performSearch(searchTerm);
+        } else {
+            searchResults.innerHTML = '';
+        }
+    })
     
     async function performSearch(searchTerm) {
         try {
@@ -325,7 +425,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const data = await response.json();
             if (data.success) {
                 displaySearchResults(data.songs , isLoggedIn);
-                console.log(data.songs)
+                console.log("Completed Performing Search")
             } else {
                 console.error('Search failed:', data.error);
             }

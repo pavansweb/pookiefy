@@ -31,21 +31,7 @@
             const closeBtn = document.querySelector('.close-btn');
             const spotifyLoginBtn = document.querySelector('.spotify-login-btn');
 
-    // Function to show the modal
-    function showModal() {
-        if (loginModal) {
-            loginModal.classList.add('show');
-            document.body.style.overflow = 'hidden';
-        }
-    }
-
-    // Function to hide the modal
-    function hideModal() {
-        if (loginModal) {
-            loginModal.classList.remove('show');
-            document.body.style.overflow = 'auto';
-        }
-    }
+    
 
     // Add event listeners with null checks
     if (shuffleButton) {
