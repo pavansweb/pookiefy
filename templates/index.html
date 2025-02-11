@@ -1,9 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pookiefy - Music Streaming</title>
+    <link rel="icon" href="https://i.postimg.cc/7LPC4ZBT/android-chrome-192x192.png">
     <style>
         * {
             margin: 0;
@@ -13,13 +15,13 @@
         }
 
         :root {
-            --primary: #ff6b6b;
-            --primary-dark: #ff5252;
+            --primary: #6bff75;
+            --primary-dark: #1ed51a;
             --dark: #0a0a0a;
             --light: #ffffff;
             --gray: #1a1a1a;
             --text-secondary: #b3b3b3;
-            --gradient: linear-gradient(135deg, #ff6b6b, #ff8e8e);
+            --gradient: linear-gradient(135deg, #1ed51a, #1ed51a);
         }
 
         body {
@@ -240,10 +242,11 @@
             transition: all 0.3s ease;
             width: 40px;
             height: 40px;
+            padding: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
-            border-radius: 50%;
+            border-radius: 10px;
         }
 
         .control-button:hover {
@@ -251,14 +254,13 @@
         }
 
         .control-button.play-pause {
-            background: var(--gradient);
+            /*background: var(--gradient);*/
             width: 50px;
             height: 50px;
         }
 
         .control-button.play-pause:hover {
             transform: scale(1.05);
-            box-shadow: 0 0 15px rgba(255, 107, 107, 0.3);
         }
 
         .progress-container {
@@ -280,7 +282,11 @@
             height: 100%;
             background: var(--gradient);
             border-radius: 3px;
-            position: relative;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 0%;
+            /* Changed to 0 initially */
             transition: width 0.1s linear;
         }
 
@@ -419,7 +425,9 @@
         }
 
         @keyframes spin {
-            to { transform: rotate(360deg); }
+            to {
+                transform: rotate(360deg);
+            }
         }
 
         /* Error Message */
@@ -434,12 +442,14 @@
         }
     </style>
 </head>
+
 <body>
     <header class="header">
         <div class="header-content">
             <div class="logo">Pookiefy</div>
             <div class="search-container">
-                <input type="text" class="search-input" id="search-input" placeholder="Search for songs, artists, or albums...">
+                <input type="text" class="search-input" id="search-input" autocomplete="off"
+                    placeholder="Search for songs, artists, or albums...">
                 <button class="search-button" id="search-button">🔍</button>
             </div>
         </div>
@@ -452,7 +462,8 @@
     <div class="player-container" id="player-container">
         <div class="player-content">
             <div class="now-playing" id="now-playing">
-                <img src="https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=50&h=50&fit=crop" class="now-playing-image" id="now-playing-image" alt="Default">
+                <img src="https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=50&h=50&fit=crop"
+                    class="now-playing-image" id="now-playing-image" alt="Default">
                 <div class="now-playing-info">
                     <div class="now-playing-title" id="now-playing-title">Select a song to play</div>
                     <div class="now-playing-year" id="now-playing-year"></div>
@@ -467,12 +478,58 @@
                     <span class="time" id="duration">0:00</span>
                 </div>
                 <div class="player-controls">
-                    <button class="control-button" id="prev-button">⏮️</button>
-                    <button class="control-button shuffle" id="shuffle-button">🔀</button>
-                    <button class="control-button play-pause" id="play-pause-button">▶️</button>
-                    <button class="control-button" id="next-button">⏭️</button>
+                    <!-- Previous Button -->
+                    <button class="control-button" id="prev-button">
+                        <svg fill="#2CA9BC" height="800px" width="800px" version="1.1" id="Layer_1"
+                            xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+                            viewBox="0 0 512 512" enable-background="new 0 0 512 512" xml:space="preserve">
+                            <path
+                                d="M274.3,262.5L512,381.4V143.6L274.3,262.5z M36.6,262.5l237.7,118.9V262.5V143.6L36.6,262.5z M0,143.6v237.7h36.6V262.5
+	V143.6H0z" />
+                        </svg>
+                    </button>
+
+
+                    <!-- Play/Pause Button -->
+                    <button class="control-button play-pause" id="play-pause-button">
+                        <svg fill="#000000" width="800px" height="800px" viewBox="0 0 24 24" id="play"
+                            data-name="Flat Line" xmlns="http://www.w3.org/2000/svg" class="icon flat-line">
+                            <path id="secondary" d="M12,3a9,9,0,1,0,9,9A9,9,0,0,0,12,3ZM10,16V8l6,4Z"
+                                style="fill: rgb(44, 169, 188); stroke-width: 2;"></path>
+                            <path id="primary" d="M16,12l-6,4V8ZM12,3a9,9,0,1,0,9,9A9,9,0,0,0,12,3Z"
+                                style="fill: none; stroke: rgb(0, 0, 0); stroke-linecap: round; stroke-linejoin: round; stroke-width: 2;">
+                            </path>
+                        </svg>
+                        <svg fill="#000000" width="800px" height="800px" viewBox="0 0 24 24" id="pause"
+                            data-name="Flat Line" xmlns="http://www.w3.org/2000/svg" class="icon flat-line">
+                            <path id="secondary"
+                                d="M7,3H9a1,1,0,0,1,1,1V20a1,1,0,0,1-1,1H7a1,1,0,0,1-1-1V4A1,1,0,0,1,7,3Zm8,18h2a1,1,0,0,0,1-1V4a1,1,0,0,0-1-1H15a1,1,0,0,0-1,1V20A1,1,0,0,0,15,21Z"
+                                style="fill: rgb(44, 169, 188); stroke-width: 2;"></path>
+                            <path id="primary"
+                                d="M7,3H9a1,1,0,0,1,1,1V20a1,1,0,0,1-1,1H7a1,1,0,0,1-1-1V4A1,1,0,0,1,7,3Zm8,18h2a1,1,0,0,0,1-1V4a1,1,0,0,0-1-1H15a1,1,0,0,0-1,1V20A1,1,0,0,0,15,21Z"
+                                style="fill: none; stroke: rgb(0, 0, 0); stroke-linecap: round; stroke-linejoin: round; stroke-width: 2;">
+                            </path>
+                        </svg>
+                    </button>
+
+                    <!-- Next Button -->
+                    <button class="control-button" id="next-button">
+                        <svg fill="#2CA9BC" height="800px" width="800px" version="1.1" id="Layer_1"
+                            xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+                            viewBox="0 0 512 512" enable-background="new 0 0 512 512" xml:space="preserve">
+                            <path d="M0,381.4l237.7-118.9L0,143.6V381.4z M237.7,262.5v118.9l237.7-118.9L237.7,143.6V262.5z M475.4,143.6v118.9v118.9H512
+                            V143.6H475.4z" />
+                        </svg>
+                    </button>
+
+                    <!-- Volume Button -->
                     <div class="volume-container">
-                        <button class="control-button" id="volume-button">🔊</button>
+                        <button class="control-button" id="volume-button">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+                                <path fill="currentColor"
+                                    d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.99 7-4.48 7-8.77s-2.99-7.78-7-8.77z" />
+                            </svg>
+                        </button>
                         <input type="range" class="volume-slider" id="volume-slider" min="0" max="100" value="100">
                     </div>
                 </div>
@@ -506,23 +563,30 @@
         let currentIndex = -1;
         let isShuffled = false;
         let previousVolume = 1;
+        let searchTimer;
+        const searchDelay = 300; // Adjust delay as needed (milliseconds)
+
 
         // Hide player initially
         playerContainer.classList.add('hidden');
 
         // Event Listeners
         searchButton.addEventListener('click', performSearch);
-        searchInput.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
+
+
+        searchInput.addEventListener('input', function (e) {
+            clearTimeout(searchTimer);
+            searchTimer = setTimeout(() => {
                 performSearch();
-            }
+            }, searchDelay);  // Debounce search
         });
 
         // Player Controls
         playPauseButton.addEventListener('click', togglePlayPause);
         prevButton.addEventListener('click', playPrevious);
         nextButton.addEventListener('click', playNext);
-        shuffleButton.addEventListener('click', toggleShuffle);
+        if (shuffleButton)
+            shuffleButton.addEventListener('click', toggleShuffle);
         volumeButton.addEventListener('click', toggleMute);
         volumeSlider.addEventListener('input', handleVolumeChange);
 
@@ -533,9 +597,12 @@
 
         function performSearch() {
             const query = searchInput.value.trim();
-            if (!query) return;
+            if (!query || query.length < 3) {  // Only search for queries with at least 3 characters
+                resultsList.innerHTML = ''; // Clear the results
+                return;
+            }
 
-            const url = `/search?query=${encodeURIComponent(query)}`;
+            const url = `https://congenial-system-q74pxgx4vrwxhx4g9-5000.app.github.dev/search?query=${encodeURIComponent(query)}`;
             resultsList.innerHTML = '<div class="loading"></div>';
 
             fetch(url)
@@ -580,11 +647,14 @@
             if (audioUrl) {
                 currentSong = song;
                 audioPlayer.src = audioUrl;
+                audioPlayer.load(); // Load the new audio source
+
                 audioPlayer.play()
                     .then(() => {
                         updateNowPlaying();
                         playerContainer.classList.remove('hidden');
-                        playPauseButton.textContent = '⏸️';
+                        updatePlayPauseButton(false);
+
                     })
                     .catch(error => {
                         console.error('Playback failed:', error);
@@ -612,33 +682,42 @@
         function togglePlayPause() {
             if (audioPlayer.paused) {
                 audioPlayer.play();
-                playPauseButton.textContent = '⏸️';
+                updatePlayPauseButton(false);
             } else {
                 audioPlayer.pause();
-                playPauseButton.textContent = '▶️';
+                updatePlayPauseButton(true);
             }
         }
 
+        function updatePlayPauseButton(paused) {
+            if (paused) {
+                playPauseButton.innerHTML = '<svg fill="#000000" width="800px" height="800px" viewBox="0 0 24 24" id="play" data-name="Flat Line" xmlns="http://www.w3.org/2000/svg" class="icon flat-line"><path id="secondary" d="M12,3a9,9,0,1,0,9,9A9,9,0,0,0,12,3ZM10,16V8l6,4Z" style="fill: rgb(44, 169, 188); stroke-width: 2;"></path><path id="primary" d="M16,12l-6,4V8ZM12,3a9,9,0,1,0,9,9A9,9,0,0,0,12,3Z" style="fill: none; stroke: rgb(0, 0, 0); stroke-linecap: round; stroke-linejoin: round; stroke-width: 2;"></path></svg>';
+            } else {
+                playPauseButton.innerHTML = `<svg fill="#000000" width="800px" height="800px" viewBox="0 0 24 24" id="pause" data-name="Flat Line" xmlns="http://www.w3.org/2000/svg" class="icon flat-line"><path id="secondary" d="M7,3H9a1,1,0,0,1,1,1V20a1,1,0,0,1-1,1H7a1,1,0,0,1-1-1V4A1,1,0,0,1,7,3Zm8,18h2a1,1,0,0,0,1-1V4a1,1,0,0,0-1-1H15a1,1,0,0,0-1,1V20A1,1,0,0,0,15,21Z" style="fill: rgb(44, 169, 188); stroke-width: 2;"></path><path id="primary" d="M7,3H9a1,1,0,0,1,1,1V20a1,1,0,0,1-1,1H7a1,1,0,0,1-1-1V4A1,1,0,0,1,7,3Zm8,18h2a1,1,0,0,0,1-1V4a1,1,0,0,0-1-1H15a1,1,0,0,0-1,1V20A1,1,0,0,0,15,21Z" style="fill: none; stroke: rgb(0, 0, 0); stroke-linecap: round; stroke-linejoin: round; stroke-width: 2;"></path></svg>`;
+            }
+        }
+
+
         function playNext() {
             if (playlist.length === 0) return;
-            
-            currentIndex = currentIndex + 1;
-            
+
+            currentIndex = (currentIndex + 1) % playlist.length;
+
+
             playSong(playlist[currentIndex]);
         }
 
         function playPrevious() {
             if (playlist.length === 0) return;
-            
+
             if (audioPlayer.currentTime > 3) {
                 audioPlayer.currentTime = 0;
                 return;
             }
-            
-            currentIndex = isShuffled
-                ? Math.floor(Math.random() * playlist.length)
-                : (currentIndex - 1 + playlist.length) % playlist.length;
-            
+
+
+            currentIndex = (currentIndex - 1 + playlist.length) % playlist.length;
+
             playSong(playlist[currentIndex]);
         }
 
@@ -654,9 +733,11 @@
         }
 
         function updateProgress() {
-            const percent = (audioPlayer.currentTime / audioPlayer.duration) * 100;
-            progress.style.width = `${percent}%`;
-            currentTimeDisplay.textContent = formatTime(audioPlayer.currentTime);
+            if (audioPlayer.duration) {
+                const percent = (audioPlayer.currentTime / audioPlayer.duration) * 100;
+                progress.style.width = `${percent}%`;
+                currentTimeDisplay.textContent = formatTime(audioPlayer.currentTime);
+            }
         }
 
         function updateDuration() {
@@ -679,7 +760,7 @@
             if (audioPlayer.volume > 0) {
                 previousVolume = audioPlayer.volume;
                 audioPlayer.volume = 0;
-                volumeSlider.value = 0;
+                volumeSlider. value = 0;
             } else {
                 audioPlayer.volume = previousVolume;
                 volumeSlider.value = previousVolume * 100;
@@ -688,9 +769,9 @@
         }
 
         function updateVolumeIcon(volume) {
-            if (volume === 0) volumeButton.textContent = '🔇';
-            else if (volume < 0.5) volumeButton.textContent = '🔉';
-            else volumeButton.textContent = '🔊';
+            if (volume === 0) volumeButton.innerHTML = '';
+            else if (volume < 0.5) volumeButton.innerHTML = '';
+            else volumeButton.innerHTML = '';
         }
 
         // Auto-play next song
@@ -703,4 +784,5 @@
         });
     </script>
 </body>
+
 </html>
