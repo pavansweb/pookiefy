@@ -602,7 +602,7 @@
                 return;
             }
 
-            const url = `https://congenial-system-q74pxgx4vrwxhx4g9-5000.app.github.dev/search?query=${encodeURIComponent(query)}`;
+            const url = '/search?query=${encodeURIComponent(query)}`;
             resultsList.innerHTML = '<div class="loading"></div>';
 
             fetch(url)
