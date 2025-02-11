@@ -1,121 +1,285 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Horizon Learners</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="/static/css/style.css" />
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/nav.css') }}">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Melodify - Music Streaming</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
 
+        :root {
+            --primary: #1db954;
+            --dark: #121212;
+            --light: #ffffff;
+            --gray: #282828;
+            --text-secondary: #b3b3b3;
+        }
 
+        body {
+            background-color: var(--dark);
+            color: var(--light);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 0;
+            border-bottom: 1px solid var(--gray);
+            margin-bottom: 30px;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        .search-container {
+            flex: 1;
+            max-width: 600px;
+            margin: 0 20px;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 12px 20px;
+            font-size: 16px;
+            background-color: var(--gray);
+            border: none;
+            border-radius: 25px;
+            color: var(--light);
+            transition: all 0.3s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            background-color: #3e3e3e;
+        }
+
+        .search-button {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: var(--primary);
+            color: var(--light);
+            border: none;
+            border-radius: 50%;
+            width: 35px;
+            height: 35px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .search-button:hover {
+            background-color: #1ed760;
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+            padding: 20px 0;
+        }
+
+        .song-card {
+            background-color: var(--gray);
+            border-radius: 8px;
+            padding: 15px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .song-card:hover {
+            background-color: #3e3e3e;
+            transform: translateY(-5px);
+        }
+
+        .song-image {
+            width: 100%;
+            aspect-ratio: 1;
+            border-radius: 4px;
+            margin-bottom: 12px;
+            object-fit: cover;
+        }
+
+        .song-info {
+            color: var(--light);
+        }
+
+        .song-title {
+            font-weight: 600;
+            margin-bottom: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .song-year {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .player-container {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: var(--gray);
+            padding: 15px;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .audio-player {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .audio-player::-webkit-media-controls-panel {
+            background-color: var(--gray);
+        }
+
+        .audio-player::-webkit-media-controls-current-time-display,
+        .audio-player::-webkit-media-controls-time-remaining-display {
+            color: var(--light);
+        }
+
+        .now-playing {
+            text-align: center;
+            margin-bottom: 10px;
+            color: var(--primary);
+            font-size: 14px;
+        }
+
+        @media (max-width: 768px) {
+            .results-grid {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            }
+        }
+    </style>
 </head>
 <body>
-    <div id="overlay" class="overlay">
-        <div class="loader">
-            <div class="loader-square"></div>
-            <div class="loader-square"></div>
-            <div class="loader-square"></div>
-            <div class="loader-square"></div>
-            <div class="loader-square"></div>
-            <div class="loader-square"></div>
-            <div class="loader-square"></div>
-        </div>
+    <div class="container">
+        <header class="header">
+            <div class="logo">Melodify</div>
+            <div class="search-container">
+                <input type="text" class="search-input" id="search-input" placeholder="Search for songs, artists, or albums...">
+                <button class="search-button" id="search-button">🔍</button>
+            </div>
+        </header>
+
+        <div class="results-grid" id="results"></div>
     </div>
 
-
-    <nav class="nav">
-        <button id="toggleSidebarButton" class="btn btn-secondary" onclick="toggleSidebar()"> </button>
-        
-        <a href="#" class="logo">Horizon</a>
-        <ul class="nav-links">
-            <li><a href="/">Home</a></li>
-            <li><a href="#">Services</a></li>
-            <li><a href="/contact">Contact</a></li>
-            <li id="loginNavItem" class="nav-item"><a href="/login" class="  ">Login/Sign Up</a></li>
-            
-        </ul>
-        <label class="switch">
-            <input type="checkbox" id="darkModeToggle" />
-            <span class="slider round"></span>
-            <span class="icon sun-icon">&#x2600;</span>
-            <span class="icon moon-icon">&#x1F319;</span>
-        </label>
-    </nav>
-    
-    <div class="container text-center mt-5">
-        Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim. Donec pede justo, fringilla vel, aliquet nec, vulputate eget, arcu.
-
-        In enim justo, rhoncus ut, imperdiet a, venenatis vitae, justo. Nullam dictum felis eu pede mollis pretium. Integer tincidunt. Cras dapibus. Vivamus elementum semper nisi. Aenean vulputate eleifend tellus. Aenean leo ligula, porttitor eu, consequat vitae, eleifend ac, enim. Aliquam lorem ante, dapibus in, viverra quis, feugiat a, tellus.
-
-        Phasellus viverra nulla ut metus varius laoreet. Quisque rutrum. Aenean imperdiet. Etiam ultricies nisi vel augue. Curabitur ullamcorper ultricies nisi. Nam eget dui. Etiam rhoncus. Maecenas tempus, tellus eget condimentum rhoncus, sem quam semper libero, sit amet adipiscing sem neque sed ipsum. Nam quam nunc, blandit vel, luctus pulvinar, hendrerit id, lorem.
-
-        Maecenas nec odio et ante tincidunt tempus. Donec vitae sapien ut libero venenatis faucibus. Nullam quis ante. Etiam sit amet orci eget eros faucibus tincidunt. Duis leo. Sed fringilla mauris sit amet nibh. Donec sodales sagittis magna. Sed consequat, leo eget bibendum sodales, augue velit cursus nunc, quis gravida magna mi a libero. Fusce vulputate eleifend sapien.
-
-        Vestibulum purus quam, scelerisque ut, mollis sed, nonummy id, metus. Nullam accumsan lorem in dui. Cras ultricies mi eu turpis hendrerit fringilla. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; In ac dui quis mi consectetuer lacinia. Nam pretium turpis et arcu. Duis arcu tortor, suscipit eget, imperdiet nec, imperdiet iaculis, ipsum. Sed aliquam ultrices mauris. Integer ante arcu, accumsan a, consectetuer eget, posuere ut, mauris. Praesent adipiscing. Phasellus ullamcorper ipsum rutrum nunc. Nunc nonummy metus. Vestibulum volutpat pretium libero. Cras id dui. Aenean ut
-    </div>
-    
-        <div id="content" class="mt-4">
-            <p> </p>
-        </div>
+    <div class="player-container">
+        <div class="now-playing" id="now-playing"></div>
+        <audio id="audio-player" class="audio-player" controls></audio>
     </div>
 
-    <!-- Sidebar for account settings -->
-    <div id="sidebar" class="sidebar">
-        <span class="close-btn" onclick="toggleSidebar()">×</span>
-        <h3>Account Settings</h3>
-        <div id="user-info">
-            <!-- User info will be populated here -->
-        </div>
-    </div>
+    <script>
+        const searchInput = document.getElementById('search-input');
+        const searchButton = document.getElementById('search-button');
+        const resultsList = document.getElementById('results');
+        const audioPlayer = document.getElementById('audio-player');
+        const nowPlaying = document.getElementById('now-playing');
 
-    <!--  AFTER RECREATING THE NOTES SECTION < MAKE IT COME ONLY IN THE NOTES NOT IN OTHER LIKE HOME<button id="scrollToTopButton" class="btn btn-primary" onclick="scrollToTop()">↑</button> -->
+        let currentSong = null;
 
-    <footer>
-        <div class="f-item-con">
-            <div class="app-info">
-                <span class='app-name'>
-                   Horizon
-                </span>
-                <p>We provide you with <strong>best</strong> and <strong>still the best</strong> products</p>
-            </div>
-            <div class="useful-links">
-                <div class="footer-title">Useful Links</div>
-                <ul>
-                    <li><a href="/">Home</a></li>
-                    <li><a href="#">Services</a></li>
-                    <li><a href="/contact">Contact Us</a></li>
-                </ul>
-            </div>
-            
-            </div>
-            <div class="g-i-t">
-                <div class="footer-title">Get in Touch</div>
-                <form class="contact-form" method="post" action="{{ url_for('contact') }}">
-                    <div class="form-group">
-                        <input type="text" id="input-name" name="name" class="form-control" placeholder="Name" required>
-                    </div>
-                    <div class="form-group">
-                        <input type="email" id="input-email" name="email" class="form-control" placeholder="Email address" required>
-                    </div>
-                    <div class="form-group">
-                        <input type="text" id="input-subject" name="subject" class="form-control" placeholder="Subject" required>
-                    </div>
-                    <div class="form-group">
-                        <textarea name="message" id="input-message" class="form-control" placeholder="Message" rows="5" required></textarea>
-                    </div>
-                    <button type="submit" class="btn btn-primary">Send Message</button>
-                </form>
-            </div>
-        </div>
-        <div class='cr-con'>Copyright &copy; 2024 | Horizon</div>
-    </footer>
+        searchButton.addEventListener('click', performSearch);
+        searchInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                performSearch();
+            }
+        });
 
+        function performSearch() {
+            const query = searchInput.value.trim();
+            if (!query) return;
 
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <script src="/static/js/index.js"></script>
+            const url = `/search?query=${encodeURIComponent(query)}`;
+
+            // Show loading state
+            resultsList.innerHTML = '<div style="text-align: center; grid-column: 1/-1;">Searching...</div>';
+
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    displayResults(data.data.results);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    resultsList.innerHTML = '<div style="text-align: center; grid-column: 1/-1;">An error occurred while searching. Please try again.</div>';
+                });
+        }
+
+        function displayResults(songs) {
+            resultsList.innerHTML = '';
+            if (!songs.length) {
+                resultsList.innerHTML = '<div style="text-align: center; grid-column: 1/-1;">No songs found. Try a different search.</div>';
+                return;
+            }
+
+            songs.forEach(song => {
+                const card = document.createElement('div');
+                card.className = 'song-card';
+                card.innerHTML = `
+                    <img src="${song.image[1].url}" class="song-image" alt="${song.name}">
+                    <div class="song-info">
+                        <div class="song-title">${song.name}</div>
+                        <div class="song-year">${song.year}</div>
+                    </div>
+                `;
+                card.addEventListener('click', () => playSong(song));
+                resultsList.appendChild(card);
+            });
+        }
+
+        function playSong(song) {
+            const audioUrl = song.downloadUrl.find(url => url.quality === '320kbps')?.url;
+            if (audioUrl) {
+                currentSong = song;
+                audioPlayer.src = audioUrl;
+                audioPlayer.play();
+                updateNowPlaying();
+            } else {
+                alert('Sorry, this song is not available for playback.');
+            }
+        }
+
+        function updateNowPlaying() {
+            if (currentSong) {
+                nowPlaying.textContent = `Now Playing: ${currentSong.name} (${currentSong.year})`;
+            } else {
+                nowPlaying.textContent = '';
+            }
+        }
+
+        // Audio player event listeners
+        audioPlayer.addEventListener('ended', () => {
+            currentSong = null;
+            updateNowPlaying();
+        });
+
+        audioPlayer.addEventListener('error', () => {
+            alert('An error occurred while playing the song. Please try again.');
+            currentSong = null;
+            updateNowPlaying();
+        });
+    </script>
 </body>
 </html>
