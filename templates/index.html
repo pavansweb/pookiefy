@@ -602,7 +602,7 @@
                 return;
             }
 
-            const url = '/search?query=${encodeURIComponent(query)}`;
+            const url = `/search?query=${encodeURIComponent(query)}`;
             resultsList.innerHTML = '<div class="loading"></div>';
 
             fetch(url)
