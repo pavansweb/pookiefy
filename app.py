@@ -8,7 +8,7 @@ CORS(app)
 @app.route('/search')
 def search():
     query = request.args.get('query', '')
-    url = f"https://jiosaavan-api-2-harsh-patel.vercel.app/api/search/songs?query={query}&page=1&limit=40"
+    url = f"https://jio-saavan-api-gold.vercel.app/api/search/songs?query={query}&page=1&limit=40"
     response = requests.get(url)
     return jsonify(response.json())
 
